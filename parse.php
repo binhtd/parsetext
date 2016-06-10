@@ -158,14 +158,55 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 }
 
 $directDebitDishonourPaymentFeePattern = "|body.+?>Direct debit dishonour payment fee<\/p>(<p.+?>){1}(.+?)<p|i";
+preg_match_all($directDebitDishonourPaymentFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-preg_match_all($eligibilityCriteriaPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
-var_dump($out);
 if ( (count($out)>2) && (isset($out[2][0]))){
     $directDebitDishonourPaymentFee = $out[2][0];
     $directDebitDishonourPaymentFee = preg_replace("|</?.+?>|", "", $directDebitDishonourPaymentFee);
-    $directDebitDishonourPaymentFee = preg_replace("|[^\d,.]|", "", $directDebitDishonourPaymentFee);
+    $directDebitDishonourPaymentFee = preg_replace("|[^$\d,.]|", "", $directDebitDishonourPaymentFee);
 
 }
 
-var_dump($directDebitDishonourPaymentFee);
+$disconnectionFeePattern = "|body.+?>Disconnection fee<\/p>(<p.+?>){1}(.+?)<p|i";
+preg_match_all($disconnectionFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+if ( (count($out)>2) && (isset($out[2][0]))){
+    $disconnectionFee = $out[2][0];
+    $disconnectionFee = preg_replace("|</?.+?>|", "", $disconnectionFee);
+    $disconnectionFee = preg_replace("|[^$\d,. ]|", "", $disconnectionFee);
+    $disconnectionFee = trim($disconnectionFee);
+    $disconnectionFeeArray = split(" ", $disconnectionFee);
+    $reconnectionFee = $disconnectionFeeArray[0];
+
+}
+
+$reconnectionFeePattern = "|body.+?>Reconnection fee<\/p>(<p.+?>){1}(.+?)<p|i";
+preg_match_all($reconnectionFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+if ( (count($out)>2) && (isset($out[2][0]))){
+    $reconnectionFee = $out[2][0];
+    $reconnectionFee = preg_replace("|</?.+?>|", "", $reconnectionFee);
+    $reconnectionFee = preg_replace("|[^$\d,. ]|", "", $reconnectionFee);
+    $reconnectionFee = trim($reconnectionFee);
+    $reconnectionFeeArray = split(" ", $reconnectionFee);
+    $reconnectionFee = $reconnectionFeeArray[0];
+}
+
+$creditCardPaymentPattern = "|body.+?>Credit card payment processing fee<\/p>(<p.+?>){1}(.+?)<p|i";
+preg_match_all($creditCardPaymentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+if ( (count($out)>2) && (isset($out[2][0]))){
+    $creditCardPayment = $out[2][0];
+    $creditCardPayment = preg_replace("|</?.+?>|", "", $creditCardPayment);
+}
+
+
+$voluntaryFiTPattern = "#body.+?FiT \(Voluntary\).+?<\/p>(<p.+?>){1}(.+?)<p#";
+preg_match_all($voluntaryFiTPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+if ( (count($out)>2) && (isset($out[2][0]))){
+    $voluntaryFiT = $out[2][0];
+    $voluntaryFiT = preg_replace("|</?.+?>|", "", $voluntaryFiT);
+}
+
+var_dump($voluntaryFiT);
