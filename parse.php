@@ -4,23 +4,22 @@ $filePath = "/home/binhtd/PhpstormProjects/parsetext/Price_FactSheet_ORI145997MR
 
 $htmlContent = file_get_contents($filePath);
 
-$retailer = $offerName = $offerNo = $customerType =	$fuelType =	$distributor = $tariffType = $offerType = $releaseDate = "";
-$contractTerm = $contractExpiryDetails	= $billFrequency = $allUsagePrice = $dailySupplyChargePrice = $firstUsagePrice = "";
-$secondUsagePrice = $thirdUsagePrice =	$fourthUagePrice = $fifthUsagePrice =	$balanceUsagePrice = $firstStep =	$secondStep ="";
-$thirdStep = $fourthStep  =	$fifthStep = $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice ="";
-$conditionalDiscount = $discountPercent = $discountApplicableTo =	$areThesePricesFixed =	$eligibilityCriteria =	$chequeDishonourPaymentFee = "";
-$directDebitDishonourPaymentFee =	$paymentProcessingFee = $disconnectionFee =	$reconnectionFee =	$otherFee1 = $latePaymentFee = "";
-$creditCardPayment = $processingFee = $otherFee2 =	$voluntaryFiT = "";
+$retailer = $offerName = $offerNo = $customerType = $fuelType = $distributor = $tariffType = $offerType = $releaseDate = "";
+$contractTerm = $contractExpiryDetails = $billFrequency = $allUsagePrice = $dailySupplyChargePrice = $firstUsagePrice = "";
+$secondUsagePrice = $thirdUsagePrice = $fourthUagePrice = $fifthUsagePrice = $balanceUsagePrice = $firstStep = $secondStep = "";
+$thirdStep = $fourthStep = $fifthStep = $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = "";
+$conditionalDiscount = $discountPercent = $discountApplicableTo = $areThesePricesFixed = $eligibilityCriteria = $chequeDishonourPaymentFee = "";
+$directDebitDishonourPaymentFee = $paymentProcessingFee = $disconnectionFee = $reconnectionFee = $otherFee1 = $latePaymentFee = "";
+$creditCardPaymentProcessingFee = $otherFee2 = $voluntaryFiT = "";
 
 $htmlContent = str_replace("\n", "", $htmlContent);
 $htmlContent = str_replace("\r", "", $htmlContent);
 $htmlContent = str_replace("&#160;", " ", $htmlContent);
 
-
 $retailerPattern = "/body.+?<div.+?<img.+?<p.+?<p.+?>(.*?)<p/i";
 preg_match_all($retailerPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>1) && (isset($out[1][0]))){
+if ((count($out) > 1) && (isset($out[1][0]))) {
     $retailer = $out[1][0];
     $retailer = preg_replace("|</?.+?>|", "", $retailer);
 }
@@ -28,13 +27,13 @@ if ( (count($out)>1) && (isset($out[1][0]))){
 $offerNamePattern = "/body.+?<div.+?<img.+?<p.+?<p.*?<p.*?>(.+?)<p/i";
 preg_match_all($offerNamePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>1) && (isset($out[1][0]))){
+if ((count($out) > 1) && (isset($out[1][0]))) {
     $offerName = $out[1][0];
     $offerName = preg_replace("|</?.+?>|", "", $offerName);
 
     $offerNameNoArray = split("-", $offerName);
 
-    if (count($offerNameNoArray) > 1){
+    if (count($offerNameNoArray) > 1) {
         $offerName = trim($offerNameNoArray[0]);
         $offerNo = trim($offerNameNoArray[1]);
     }
@@ -43,7 +42,7 @@ if ( (count($out)>1) && (isset($out[1][0]))){
 $customerTypePattern = "|body.+?<b>Release date<\/b><\/p><p.*?>(.+?)<\/p>|i";
 preg_match_all($customerTypePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>1) && (isset($out[1][0]))){
+if ((count($out) > 1) && (isset($out[1][0]))) {
     $customerType = $out[1][0];
     $customerType = preg_replace("|</?.+?>|", "", $customerType);
 }
@@ -52,7 +51,7 @@ if ( (count($out)>1) && (isset($out[1][0]))){
 $fuelTypePattern = "|body.+?<b>Release date<\/b><\/p>(<p.+?>){2}(.+?)<\/p>|i";
 preg_match_all($fuelTypePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $fuelType = $out[2][0];
     $fuelType = preg_replace("|</?.+?>|", "", $fuelType);
 }
@@ -60,7 +59,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $distributorPattern = "|body.+?<b>Release date<\/b><\/p>(<p.+?>){3}(.+?)<\/p>|i";
 preg_match_all($distributorPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $distributor = $out[2][0];
     $distributor = preg_replace("|</?.+?>|", "", $distributor);
 }
@@ -68,7 +67,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $tariffTypePattern = "|body.+?<b>Release date<\/b><\/p>(<p.+?>){4}(.+?)<\/p>|i";
 preg_match_all($tariffTypePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $tariffType = $out[2][0];
     $tariffType = preg_replace("|</?.+?>|", "", $tariffType);
 }
@@ -76,31 +75,32 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $offerTypePattern = "|body.+?<b>Release date<\/b><\/p>(<p.+?>){5}(.+?)<\/p>|i";
 preg_match_all($offerTypePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $offerType = $out[2][0];
     $offerType = preg_replace("|</?.+?>|", "", $offerType);
 }
 
-$releaseDatePattern = "|body.+?<b>Release date<\/b><\/p>(<p.+?>){6}(.+?)<\/p>|Ui";
+$releaseDatePattern = "|body.+?<b>Release date<\/b><\/p>(<p.+?>){6}(.+?)<\/p>|i";
 preg_match_all($releaseDatePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $releaseDate = $out[2][0];
     $releaseDate = preg_replace("|</?.+?>|", "", $releaseDate);
 }
 
-$contracTermPattern = "|body.+?<b>Electricity offer<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
-preg_match_all($contracTermPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
-    $contracTerm = $out[2][0];
-    $contracTerm = preg_replace("|</?.+?>|", "", $contracTerm);
+$contractTermPattern = "|body.+?<b>Electricity offer<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
+preg_match_all($contractTermPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+if ((count($out) > 2) && (isset($out[2][0]))) {
+    $contractTerm = $out[2][0];
+    $contractTerm = preg_replace("|</?.+?>|", "", $contractTerm);
 }
 
 $contractExpiryDetailsPattern = "|body.+?<b>Electricity offer<\/b><\/p>(<p.+?>){4}(.+?)<p|i";
 preg_match_all($contractExpiryDetailsPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $contractExpiryDetails = $out[2][0];
     $contractExpiryDetails = preg_replace("|</?.+?>|", "", $contractExpiryDetails);
 }
@@ -108,7 +108,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $billFrequencyPattern = "|body.+?<b>Electricity offer<\/b><\/p>(<p.+?>){6}(.+?)<p|i";
 preg_match_all($billFrequencyPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $billFrequency = $out[2][0];
     $billFrequency = preg_replace("|</?.+?>|", "", $billFrequency);
 }
@@ -116,16 +116,20 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $allUsagePricePattern = "|body.+?<b>All consumption Anytime<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
 preg_match_all($allUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $allUsagePrice = $out[2][0];
     $allUsagePrice = preg_replace("|</?.+?>|", "", $allUsagePrice);
     $allUsagePrice = preg_replace("|[^\d,.]|", "", $allUsagePrice);
+
+    if (!preg_match("/All usage/i", $out[0][0])){
+        $allUsagePrice = "";
+    }
 }
 
-$dailySupplyChargePricePattern = "|body.+?<b>All consumption Anytime<\/b><\/p>(<p.+?>){5}(.+?)<p|i";
+$dailySupplyChargePricePattern = "|body.+?<b>All consumption Anytime<\/b><\/p>(<p.+?>){1,3}<p.+?>Daily supply charge<\/p>(.+?)<p|i";
 preg_match_all($dailySupplyChargePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $dailySupplyChargePrice = $out[2][0];
     $dailySupplyChargePrice = preg_replace("|</?.+?>|", "", $dailySupplyChargePrice);
     $dailySupplyChargePrice = preg_replace("|[^\d,.]|", "", $dailySupplyChargePrice);
@@ -135,7 +139,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Off peak - Controlled load.+?<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
 preg_match_all($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = $out[2][0];
     $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice);
     $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice);
@@ -145,7 +149,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Off peak - Controlled load.+?<\/b><\/p>(<p.+?>){5}(.+?)<p|i";
 preg_match_all($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = $out[2][0];
     $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice);
     $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice);
@@ -155,7 +159,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $areThesePricesFixedPattern = "|body.+?>Are these prices fixed\?<\/p>(<p.+?>){1}(.+?)<p|i";
 preg_match_all($areThesePricesFixedPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $areThesePricesFixed = $out[2][0];
     $areThesePricesFixed = preg_replace("|</?.+?>|", "", $areThesePricesFixed);
 }
@@ -163,7 +167,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $eligibilityCriteriaPattern = "|body.+?>Eligibility Criteria<\/p>(<p.+?>){1}(.+?)<p|i";
 preg_match_all($eligibilityCriteriaPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $eligibilityCriteria = $out[2][0];
     $eligibilityCriteria = preg_replace("|</?.+?>|", "", $eligibilityCriteria);
 }
@@ -171,7 +175,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $directDebitDishonourPaymentFeePattern = "|body.+?>Direct debit dishonour payment fee<\/p>(<p.+?>){1}(.+?)<p|i";
 preg_match_all($directDebitDishonourPaymentFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $directDebitDishonourPaymentFee = $out[2][0];
     $directDebitDishonourPaymentFee = preg_replace("|</?.+?>|", "", $directDebitDishonourPaymentFee);
     $directDebitDishonourPaymentFee = preg_replace("|[^$\d,.]|", "", $directDebitDishonourPaymentFee);
@@ -181,14 +185,14 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $disconnectionFeePattern = "|body.+?>Disconnection fee<\/p>(<p.+?>){1}(.+?)<p|i";
 preg_match_all($disconnectionFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $disconnectionFee = $out[2][0];
     $disconnectionFee = preg_replace("|</?.+?>|", "", $disconnectionFee);
     $disconnectionFee = preg_replace("|[^$\d,. ]|", "", $disconnectionFee);
     $disconnectionFee = trim($disconnectionFee);
     $disconnectionFeeArray = split(" ", $disconnectionFee);
 
-    if (isset($disconnectionFeeArray)){
+    if (isset($disconnectionFeeArray)) {
         $disconnectionFee = $disconnectionFeeArray[0];
     }
 }
@@ -196,49 +200,53 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $reconnectionFeePattern = "|body.+?>Reconnection fee<\/p>(<p.+?>){1}(.+?)<p|i";
 preg_match_all($reconnectionFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $reconnectionFee = $out[2][0];
     $reconnectionFee = preg_replace("|</?.+?>|", "", $reconnectionFee);
     $reconnectionFee = preg_replace("|[^$\d,. ]|", "", $reconnectionFee);
     $reconnectionFee = trim($reconnectionFee);
     $reconnectionFeeArray = split(" ", $reconnectionFee);
-    if (isset($reconnectionFeeArray[0])){
+    if (isset($reconnectionFeeArray[0])) {
         $reconnectionFee = $reconnectionFeeArray[0];
     }
 }
 
-$creditCardPaymentPattern = "|body.+?>Credit card payment processing fee<\/p>(<p.+?>){1}(.+?)<p|i";
-preg_match_all($creditCardPaymentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+$creditCardPaymentProcessingFeePattern = "|body.+?>Credit card payment processing fee<\/p>(<p.+?>){1}(.+?)<p|i";
+preg_match_all($creditCardPaymentProcessingFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
-    $creditCardPayment = $out[2][0];
-    $creditCardPayment = preg_replace("|</?.+?>|", "", $creditCardPayment);
+if ((count($out) > 2) && (isset($out[2][0]))) {
+    $creditCardPaymentProcessingFee = $out[2][0];
+    $creditCardPaymentProcessingFee = preg_replace("|</?.+?>|", "", $creditCardPaymentProcessingFee);
 }
 
 
 $voluntaryFiTPattern = "#body.+?FiT \(Voluntary\).+?<\/p>(<p.+?>){1}(.+?)<p#";
 preg_match_all($voluntaryFiTPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $voluntaryFiT = $out[2][0];
     $voluntaryFiT = preg_replace("|</?.+?>|", "", $voluntaryFiT);
 }
 
 
 //second pdf form parsing
-$firstUsagePricePattern = "|body.+?<b>All consumption Anytime<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
+$firstUsagePricePattern = "|body.+?<b>All consumption Anytime<\/b><\/p>((<p.+?>){2})(.+?)<p|i";
 preg_match_all($firstUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
-    $firstUsagePrice = $out[2][0];
+if ((count($out) > 3) && (isset($out[3][0]))) {
+    $firstUsagePrice = $out[3][0];
     $firstUsagePrice = preg_replace("|</?.+?>|", "", $firstUsagePrice);
     $firstUsagePrice = preg_replace("|[^\d,.]|", "", $firstUsagePrice);
+
+    if (isset($out[1][0]) && !preg_match("|first|i", $out[1][0])){
+        $firstUsagePrice = "";
+    }
 }
 
 $balanceUsagePricePattern = "|body.+?Remaining usage per day<\/p>(<p.+?>){1}(.+?)<p|i";
 preg_match_all($balanceUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $balanceUsagePrice = $out[2][0];
     $balanceUsagePrice = preg_replace("|</?.+?>|", "", $balanceUsagePrice);
     $balanceUsagePrice = preg_replace("|[^\d,.]|", "", $balanceUsagePrice);
@@ -247,7 +255,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $firstStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}(First.+?)<p|i";
 preg_match_all($firstStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $firstStep = $out[2][0];
     $firstStep = preg_replace("|</?.+?>|", "", $firstStep);
     $firstStep = preg_replace("|[^\d,.]|", "", $firstStep);
@@ -256,7 +264,7 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $conditionalDiscountPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){1}(.+?)<p|i";
 preg_match_all($conditionalDiscountPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $conditionalDiscount = $out[2][0];
     $conditionalDiscount = preg_replace("|</?.+?>|", "", $conditionalDiscount);
 }
@@ -264,80 +272,91 @@ if ( (count($out)>2) && (isset($out[2][0]))){
 $discountPercentPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
 preg_match_all($discountPercentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>2) && (isset($out[2][0]))){
+if ((count($out) > 2) && (isset($out[2][0]))) {
     $discountPercent = $out[2][0];
     $discountPercent = preg_replace("|</?.+?>|", "", $discountPercent);
     $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
 
     $discountPercentArray = split("%", $discountPercent);
-    if (isset($discountPercentArray[0])){
+    if (isset($discountPercentArray[0])) {
         $discountPercent = $discountPercentArray[0] . "%";
     }
 }
 
 $discountApplicableToPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
 preg_match_all($discountApplicableToPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
-if ( (count($out)>2) && (isset($out[2][0])) && preg_match("/Usage charges/i", $out[2][0])){
+if ((count($out) > 2) && (isset($out[2][0])) && preg_match("/Usage charges/i", $out[2][0])) {
     $discountApplicableTo = "Usage charges";
 }
 
 $chequeDishonourPaymentFeePattern = "|body.+?<p.*?>Cheque Dishonour payment fee<\/p><p.*?>(.*?)<\/p>|i";
 preg_match_all($chequeDishonourPaymentFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>1) && (isset($out[1][0]))){
+if ((count($out) > 1) && (isset($out[1][0]))) {
     $chequeDishonourPaymentFee = $out[1][0];
     $chequeDishonourPaymentFee = preg_replace("/[^0-9,.$]/", "", $chequeDishonourPaymentFee);
     $chequeDishonourPaymentFeeArray = explode("$", $chequeDishonourPaymentFee);
-    if (isset($chequeDishonourPaymentFeeArray[1])){
-        $chequeDishonourPaymentFee = "$".$chequeDishonourPaymentFeeArray[1];
+    if (isset($chequeDishonourPaymentFeeArray[1])) {
+        $chequeDishonourPaymentFee = "$" . $chequeDishonourPaymentFeeArray[1];
     }
 }
 
 $paymentProcessingFeePattern = "|body.+?<p.*?>Payment processing fee<\/p><p.*?>(.*?)<\/p>|i";
 preg_match_all($paymentProcessingFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if ( (count($out)>1) && (isset($out[1][0]))){
+if ((count($out) > 1) && (isset($out[1][0]))) {
     $paymentProcessingFee = $out[1][0];
     $paymentProcessingFee = preg_replace("/[^0-9,.%]/", "", $paymentProcessingFee);
     $paymentProcessingFeeArray = explode("%", $paymentProcessingFee);
-    if ($paymentProcessingFeeArray[0]){
-        $paymentProcessingFee = $paymentProcessingFeeArray[0]."%";
+    if ($paymentProcessingFeeArray[0]) {
+        $paymentProcessingFee = $paymentProcessingFeeArray[0] . "%";
     }
 }
 
 $otherFee1Pattern = "|body.+?fees.+?>Other fee<\/p>(<p.+?>){1}(.+?)<p|i";
 preg_match_all($otherFee1Pattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if (count($out)>2 && isset($out[2][0])){
+if (count($out) > 2 && isset($out[2][0])) {
     $otherFee1 = $out[2][0];
 
     $otherFee1 = preg_replace("/[^0-9,.$]/", "", $otherFee1);
     $otherFee1Array = explode("$", $otherFee1);
-    if (isset($otherFee1Array[1])){
-        $otherFee1 = "$".$otherFee1Array[1];
+    if (isset($otherFee1Array[1])) {
+        $otherFee1 = "$" . $otherFee1Array[1];
     }
 }
 
 $otherFee2Pattern = "|body.+?fees.+?>Other fee<\/p>.+?Other fee<\/p>(.+?)<p|i";
 preg_match_all($otherFee2Pattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-if (count($out)>1 && isset($out[1][0])){
-    $otherFee2  = $out[1][0];
+if (count($out) > 1 && isset($out[1][0])) {
+    $otherFee2 = $out[1][0];
     $otherFee2 = preg_replace("|</?.+?>|", "", $otherFee2);
 
     $otherFee2 = preg_replace("/[^0-9,.$]/", "", $otherFee2);
     $otherFee2Array = explode("$", $otherFee2);
-    if (isset($otherFee2Array[1])){
-        $otherFee2 = "$".$otherFee2Array[1];
+    if (isset($otherFee2Array[1])) {
+        $otherFee2 = "$" . $otherFee2Array[1];
     }
 }
 
-$htmlContentFormat2 = preg_replace( "#(<[a-zA-Z0-9]+)[^\>]+>#", "\\1>", $htmlContent );
+$htmlContentFormat2 = preg_replace("#(<[a-zA-Z0-9]+)[^\>]+>#", "\\1>", $htmlContent);
 $voluntaryFiTPattern = "|<p>inclusive \(if any\).+?<p>(.+?)<p|i";
 preg_match_all($voluntaryFiTPattern, $htmlContentFormat2, $out, PREG_PATTERN_ORDER);
 
 
-if ( (count($out)>1) && (isset($out[1][0]))){
+if ((count($out) > 1) && (isset($out[1][0]))) {
     $voluntaryFiT = $out[1][0];
     $voluntaryFiT = preg_replace("|</?.+?>|", "", $voluntaryFiT);
 }
+
+$extractResultArray = array($retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
+    $contractTerm, $contractExpiryDetails, $billFrequency, $allUsagePrice, $dailySupplyChargePrice, $firstUsagePrice,
+    $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $firstStep, $secondStep,
+    $thirdStep, $fourthStep, $fifthStep, $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
+    $conditionalDiscount, $discountPercent, $discountApplicableTo, $areThesePricesFixed, $eligibilityCriteria, $chequeDishonourPaymentFee,
+    $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $otherFee1, $latePaymentFee,
+    $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT
+);
+
+var_dump($extractResultArray);
