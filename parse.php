@@ -2,7 +2,9 @@
 
 exec("which pdftohtml", $output, $returnStatus);
 
-if ( !((count($output)>0) && ($returnStatus == 0))){
+if (!((count($output) > 0) && ($returnStatus == 0))) {
+    echo "If your distro base on redhat you can use 'sudo yum install poppler*'\n";
+    echo "If your distro base on redhat you can use 'sudo apt-get install poppler-utils'\n";
     die("Please install pdftohtml\n");
 }
 
@@ -590,12 +592,13 @@ echo "##########################################################################
 fclose($handle);
 
 
-function normalizeNumber($stringPresentNumber){
-    while( in_array(substr($stringPresentNumber, 0, 1), array(",", "."))){
+function normalizeNumber($stringPresentNumber)
+{
+    while (in_array(substr($stringPresentNumber, 0, 1), array(",", "."))) {
         $stringPresentNumber = preg_replace('/^./', '', $stringPresentNumber);
     }
 
-    while( in_array(substr($stringPresentNumber, -1), array(",", "."))){
+    while (in_array(substr($stringPresentNumber, -1), array(",", "."))) {
         $stringPresentNumber = preg_replace('/.$/', '', $stringPresentNumber);
     }
 
