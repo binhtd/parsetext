@@ -1,12 +1,4 @@
 <?php
-if ((count($argv) < 1)) {
-    die("Not enough parameter\n");
-}
-
-if (!file_exists(__DIR__ . "/" . $argv[0])) {
-    die("File processing doesnot exist\n");
-}
-
 if (!is_dir(__DIR__ . "/pdf")) {
     die("Folder holds pdf does not exist inside " . __DIR__ . "\n");
 }
@@ -22,7 +14,7 @@ $totalPdfFile = 0;
 foreach (glob("*.pdf") as $filename) {
     $without_extension = pathinfo($filename, PATHINFO_FILENAME);
 
-   exec("pdftohtml -noframes -s " . __DIR__ . "/pdf/$filename " .    __DIR__ . "/html/$without_extension.html");
+    exec("pdftohtml -noframes -s " . __DIR__ . "/pdf/$filename " . __DIR__ . "/html/$without_extension.html");
 
     $totalPdfFile++;
 }
@@ -48,7 +40,7 @@ fputcsv($handle, $csvHeader);
 chdir(__DIR__ . "/html/");
 foreach (glob("*.html") as $filename) {
     $filePath = __DIR__ . "/html/$filename";
-    if (!file_exists($filePath)){
+    if (!file_exists($filePath)) {
         continue;
     }
 
@@ -329,8 +321,23 @@ foreach (glob("*.html") as $filename) {
         $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
 
         $discountPercentArray = split("%", $discountPercent);
-        if (isset($discountPercentArray[0]) && is_numeric($discountPercentArray[0])) {
+        if (isset($discountPercentArray[0]) && preg_match("|^\d+[,.]*\d*$|", $discountPercentArray[0])) {
             $discountPercent = $discountPercentArray[0] . "%";
+        } else {
+            $discountPercentPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){1}(.+?)<p|i";
+            preg_match_all($discountPercentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+            if ((count($out) > 2) && (isset($out[2][0]))) {
+                $discountPercent = $out[2][0];
+                $discountPercent = preg_replace("|</?.+?>|", "", $discountPercent);
+
+                $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
+
+                $discountPercentArray = split("%", $discountPercent);
+                if (isset($discountPercentArray[0]) && preg_match("|^\d+[,.]*\d*$|", $discountPercentArray[0])) {
+                    $discountPercent = $discountPercentArray[0] . "%";
+                }
+            }
         }
     }
 
@@ -544,7 +551,6 @@ foreach (glob("*.html") as $filename) {
     }
 
 
-
     $extractResultArray = array($retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
         $contractTerm, $contractExpiryDetails, $billFrequency, $allUsagePrice, $dailySupplyChargePrice, $firstUsagePrice,
         $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $firstStep, $secondStep,
@@ -554,7 +560,7 @@ foreach (glob("*.html") as $filename) {
         $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT
     );
 
-//    fputcsv($handle, $extractResultArray);
+    fputcsv($handle, $extractResultArray);
 }
 
 fclose($handle);
