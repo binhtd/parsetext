@@ -1,4 +1,11 @@
 <?php
+
+exec("which pdftohtml", $output, $returnStatus);
+
+if ( !((count($output)>0) && ($returnStatus == 0))){
+    die("Please install pdftohtml\n");
+}
+
 if (!is_dir(__DIR__ . "/pdf")) {
     die("Folder holds pdf does not exist inside " . __DIR__ . "\n");
 }
@@ -233,7 +240,7 @@ foreach (glob("*.html") as $filename) {
         $directDebitDishonourPaymentFee = $out[2][0];
         $directDebitDishonourPaymentFee = preg_replace("|</?.+?>|", "", $directDebitDishonourPaymentFee);
         $directDebitDishonourPaymentFee = preg_replace("|[^$\d,.]|", "", $directDebitDishonourPaymentFee);
-
+        $directDebitDishonourPaymentFee = normalizeNumber($directDebitDishonourPaymentFee);
     }
 
     $disconnectionFeePattern = "|body.+?>Disconnection fee<\/p>(<p.+?>){1}(.+?)<p|i";
@@ -558,7 +565,7 @@ foreach (glob("*.html") as $filename) {
 
         $latePaymentFeeArray = explode("$", $latePaymentFee);
         if (isset($latePaymentFeeArray[1])) {
-            $latePaymentFee = "$" . $latePaymentFeeArray[1];
+            $latePaymentFee = "$" . normalizeNumber($latePaymentFeeArray[1]);
         }
     }
 
@@ -581,3 +588,16 @@ $time = $timeEnd - $timeStart;
 echo "Total time parse document: {$time}\n";
 echo "##################################################################################################\n";
 fclose($handle);
+
+
+function normalizeNumber($stringPresentNumber){
+    while( in_array(substr($stringPresentNumber, 0, 1), array(",", "."))){
+        $stringPresentNumber = preg_replace('/^./', '', $stringPresentNumber);
+    }
+
+    while( in_array(substr($stringPresentNumber, -1), array(",", "."))){
+        $stringPresentNumber = preg_replace('/.$/', '', $stringPresentNumber);
+    }
+
+    return $stringPresentNumber;
+}
