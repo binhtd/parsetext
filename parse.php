@@ -8,18 +8,23 @@ if (file_exists(__DIR__ . "/html")) {
 }
 mkdir(__DIR__ . "/html");
 chdir(__DIR__ . "/pdf");
-
+echo "##################################################################################################\n";
 echo "Convert pdf to html\n";
+$timeStart = microtime(true);
 $totalPdfFile = 0;
 foreach (glob("*.pdf") as $filename) {
     $without_extension = pathinfo($filename, PATHINFO_FILENAME);
 
+    echo "Convert $filename\n";
     exec("pdftohtml -noframes -s " . __DIR__ . "/pdf/$filename " . __DIR__ . "/html/$without_extension.html");
 
     $totalPdfFile++;
 }
-
+$timeEnd = microtime(true);
 echo "Finish convert $totalPdfFile files\n";
+$time = $timeEnd - $timeStart;
+echo "Total time convert pdf->html: {$time}\n";
+echo "##################################################################################################\n";
 
 $csvHeader = array("Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
@@ -38,11 +43,18 @@ $handle = fopen(__DIR__ . "/parse_result.csv", "a+");
 fputcsv($handle, $csvHeader);
 
 chdir(__DIR__ . "/html/");
+echo "\n\n";
+echo "##################################################################################################\n";
+echo "Start parse document\n";
+$timeStart = microtime(true);
+$totalHtmlFile = 0;
 foreach (glob("*.html") as $filename) {
     $filePath = __DIR__ . "/html/$filename";
     if (!file_exists($filePath)) {
         continue;
     }
+
+    $totalHtmlFile++;
 
     $htmlContent = file_get_contents($filePath);
 
@@ -562,5 +574,10 @@ foreach (glob("*.html") as $filename) {
 
     fputcsv($handle, $extractResultArray);
 }
-
+$timeEnd = microtime(true);
+$time = $timeEnd - $timeStart;
+echo "Finish parse $totalHtmlFile files\n";
+$time = $timeEnd - $timeStart;
+echo "Total time parse document: {$time}\n";
+echo "##################################################################################################\n";
 fclose($handle);
