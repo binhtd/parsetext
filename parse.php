@@ -16,16 +16,22 @@ if (file_exists(__DIR__ . "/html")) {
     system("rm -rf " . escapeshellarg(__DIR__ . "/html"));
 }
 mkdir(__DIR__ . "/html");
-chdir(__DIR__ . "/pdf");
 echo "##################################################################################################\n";
 echo "Convert pdf to html\n";
 $timeStart = microtime(true);
 $totalPdfFile = 0;
-foreach (glob("*.pdf") as $filename) {
+
+exec(" find " . __DIR__ . "/pdf/" . " -name *.pdf ", $filesWithFullPath, $returnStatus);
+
+if ((count($filesWithFullPath) < 0) || ($returnStatus !=0)){
+    die("the pdf folder didn't have any pdf file to processing");
+}
+
+foreach ($filesWithFullPath as $filename) {
     $without_extension = pathinfo($filename, PATHINFO_FILENAME);
 
     echo "Convert $filename\n";
-    exec("pdftohtml -noframes -s " . __DIR__ . "/pdf/$filename " . __DIR__ . "/html/$without_extension.html");
+    exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
 
     $totalPdfFile++;
 }
