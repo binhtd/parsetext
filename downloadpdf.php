@@ -105,7 +105,7 @@ if ( isset($out[1]) && is_array($out[1])){
     }
 }
 
-downloadFile($electricityLinkArray);
+downloadFile($electricityLinkArray, "electricity");
 
 //get data for gas tab
 $postdata = array(
@@ -146,7 +146,7 @@ if ( isset($out[1]) && is_array($out[1])){
         }
     }
 }
-downloadFile($gasLinkArray);
+downloadFile($gasLinkArray, "gas");
 
 //get data for electricity & gas
 $postdata = array(
@@ -188,16 +188,16 @@ if ( isset($out[1]) && is_array($out[1])){
     }
 }
 
-downloadFile($electricityAndGasLinkArray);
+downloadFile($electricityAndGasLinkArray, "electricityAndGas");
 curl_close($ch);
 
 
-function downloadFile($linksArray){
+function downloadFile($linksArray, $prefix){
     $domain = "https://www.energymadeeasy.gov.au";
 
     foreach($linksArray as $link){
         $parts = explode("/", $link);
-        $fileName = "my". implode("-", $parts) . ".pdf";
+        $fileName = "$prefix". implode("-", $parts) . ".pdf";
         $fullFilePath = __DIR__ . "/pdf/" . $fileName;
         $fullPath = $domain . $link;
         if (file_exists($fullFilePath)){
