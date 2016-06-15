@@ -4,7 +4,7 @@ exec("which pdftohtml", $output, $returnStatus);
 
 if (!((count($output) > 0) && ($returnStatus == 0))) {
     echo "If your distro base on redhat you can use 'sudo yum install poppler*'\n";
-    echo "If your distro base on redhat you can use 'sudo apt-get install poppler-utils'\n";
+    echo "If your distro base on debian you can use 'sudo apt-get install poppler-utils'\n";
     die("Please install pdftohtml\n");
 }
 
@@ -32,9 +32,9 @@ foreach ($filesWithFullPath as $filename) {
 
     echo "Convert $filename\n";
     exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
-
     $totalPdfFile++;
 }
+
 $timeEnd = microtime(true);
 echo "Finish convert $totalPdfFile files\n";
 $time = $timeEnd - $timeStart;
@@ -248,7 +248,12 @@ foreach (glob("*.html") as $filename) {
         $directDebitDishonourPaymentFee = $out[2][0];
         $directDebitDishonourPaymentFee = preg_replace("|</?.+?>|", "", $directDebitDishonourPaymentFee);
         $directDebitDishonourPaymentFee = preg_replace("|[^$\d,.]|", "", $directDebitDishonourPaymentFee);
-        $directDebitDishonourPaymentFee = normalizeNumber($directDebitDishonourPaymentFee);
+
+        $directDebitDishonourPaymentFeeArray = explode("$", $directDebitDishonourPaymentFee);
+        if (isset($directDebitDishonourPaymentFeeArray[1])) {
+            $directDebitDishonourPaymentFee = normalizeNumber($directDebitDishonourPaymentFeeArray[1]);
+        }
+
     }
 
     $disconnectionFeePattern = "|body.+?>Disconnection fee<\/p>(<p.+?>){1}(.+?)<p|i";
@@ -382,7 +387,7 @@ foreach (glob("*.html") as $filename) {
         $chequeDishonourPaymentFee = preg_replace("/[^0-9,.$]/", "", $chequeDishonourPaymentFee);
         $chequeDishonourPaymentFeeArray = explode("$", $chequeDishonourPaymentFee);
         if (isset($chequeDishonourPaymentFeeArray[1])) {
-            $chequeDishonourPaymentFee = "$" . $chequeDishonourPaymentFeeArray[1];
+            $chequeDishonourPaymentFee = "$" . normalizeNumber($chequeDishonourPaymentFeeArray[1]);
         }
     }
 
@@ -404,10 +409,11 @@ foreach (glob("*.html") as $filename) {
     if (count($out) > 2 && isset($out[2][0])) {
         $otherFee1 = $out[2][0];
 
+        $otherFee1 = preg_replace("/\s(\d+[^,.]\d*)*\s/", "", $otherFee1);
         $otherFee1 = preg_replace("/[^0-9,.$]/", "", $otherFee1);
         $otherFee1Array = explode("$", $otherFee1);
         if (isset($otherFee1Array[1])) {
-            $otherFee1 = "$" . $otherFee1Array[1];
+            $otherFee1 = "$" . normalizeNumber($otherFee1Array[1]);
         }
     }
 
@@ -571,7 +577,7 @@ foreach (glob("*.html") as $filename) {
         $latePaymentFee = preg_replace("|</?.+?>|", "", $latePaymentFee);
         $latePaymentFee = preg_replace("|[^\d,.$]|", "", $latePaymentFee);
 
-        $latePaymentFeeArray = explode("$", $latePaymentFee);
+        $latePaymentFeeArray = explode("$", normalizeNumber($latePaymentFee));
         if (isset($latePaymentFeeArray[1])) {
             $latePaymentFee = "$" . normalizeNumber($latePaymentFeeArray[1]);
         }

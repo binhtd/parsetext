@@ -200,10 +200,13 @@ function downloadFile($linksArray){
         $fileName = "my". implode("-", $parts) . ".pdf";
         $fullFilePath = __DIR__ . "/pdf/" . $fileName;
         $fullPath = $domain . $link;
+        if (file_exists($fullFilePath)){
+            continue;
+        }
         $timeStart = microtime(true);
         exec("wget $fullPath -O $fullFilePath -q ");
         $timeEnd = microtime(true);
         $time = $timeEnd - $timeStart;
-        echo "Finish download file $fullPath ($time)s\n";
+        echo "Finished download file $fullPath ($time)s\n";
     }
 }
