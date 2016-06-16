@@ -44,7 +44,7 @@ foreach ($filesWithFullPath as $filename) {
 $timeEnd = microtime(true);
 echo "Finish convert $totalPdfFile files\n";
 $time = number_format($timeEnd - $timeStart, 2);
-echo "Total time convert pdf->html: {$time}\n";
+echo "Total time convert pdf->html: {$time} s\n";
 echo "##################################################################################################\n";
 
 $csvHeader = array("PDF File Name","Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
@@ -639,7 +639,7 @@ $timeEnd = microtime(true);
 $time = $timeEnd - $timeStart;
 echo "Finish parse $totalHtmlFile files\n";
 $time = number_format($timeEnd - $timeStart, 2);
-echo "Total time parse document: {$time}\n";
+echo "Total time parse document: {$time} s\n";
 echo "##################################################################################################\n";
 fclose($handle);
 
