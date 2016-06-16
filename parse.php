@@ -43,7 +43,7 @@ foreach ($filesWithFullPath as $filename) {
 
 $timeEnd = microtime(true);
 echo "Finish convert $totalPdfFile files\n";
-$time = $timeEnd - $timeStart;
+$time = number_format($timeEnd - $timeStart, 2);
 echo "Total time convert pdf->html: {$time}\n";
 echo "##################################################################################################\n";
 
@@ -102,6 +102,8 @@ foreach (glob("*.html") as $filename) {
     $htmlContent = str_replace("\n", "", $htmlContent);
     $htmlContent = str_replace("\r", "", $htmlContent);
     $htmlContent = str_replace("&#160;", " ", $htmlContent);
+    $htmlContent = str_replace("&#34;", '"', $htmlContent);
+
 
     $retailerPattern = "/body.+?<div.+?<img.+?<p.+?<p.+?>(.*?)<p/i";
     preg_match_all($retailerPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
@@ -636,7 +638,7 @@ foreach (glob("*.html") as $filename) {
 $timeEnd = microtime(true);
 $time = $timeEnd - $timeStart;
 echo "Finish parse $totalHtmlFile files\n";
-$time = $timeEnd - $timeStart;
+$time = number_format($timeEnd - $timeStart, 2);
 echo "Total time parse document: {$time}\n";
 echo "##################################################################################################\n";
 fclose($handle);
