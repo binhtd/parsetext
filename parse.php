@@ -63,6 +63,8 @@ echo "##########################################################################
 echo "Start parse document\n";
 $timeStart = microtime(true);
 $totalHtmlFile = 0;
+
+$globalContentHtmlHashes = array();
 foreach (glob("*.html") as $filename) {
     $filePath = __DIR__ . "/html/$filename";
     if (!file_exists($filePath)) {
@@ -72,6 +74,14 @@ foreach (glob("*.html") as $filename) {
     $totalHtmlFile++;
 
     $htmlContent = file_get_contents($filePath);
+    $htmlContentHash = md5($htmlContent);
+
+    if (!in_array($htmlContentHash, $globalContentHtmlHashes)){
+        $globalContentHtmlHashes[] = $htmlContentHash;
+    }
+    else{
+        continue;
+    }
 
     $retailer = $offerName = $offerNo = $customerType = $fuelType = $distributor = $tariffType = $offerType = $releaseDate = "";
     $contractTerm = $contractExpiryDetails = $billFrequency = $allUsagePrice = $dailySupplyChargePrice = $firstUsagePrice = "";
