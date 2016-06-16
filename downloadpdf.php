@@ -98,8 +98,8 @@ foreach ($fuelTypes as $fuel) {
             }
 
             //in some case when we change per page 100 we will get error so we will try to parse link before we switch per page 100
-            $electricityLinkArray = getElectricityLinks($htmlContent);
-            downloadFile($electricityLinkArray, ($fuel == "E" ?  "electricity": "gas"), $folderName . "/" . $code . "/");
+            $linkArray = getElectricityLinks($htmlContent);
+            downloadFile($linkArray, ($fuel == "E" ?  "electricity": "gas"), $folderName . "/" . $code . "/");
 
 
             //get data for electronic tab with per_page 100
@@ -122,22 +122,29 @@ foreach ($fuelTypes as $fuel) {
 
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
             $timeStart = microtime(true);
-            $electricityResult = curl_exec($ch);
+            $htmlContent = curl_exec($ch);
 
 
             if (curl_error($ch)) {
                 echo curl_error($ch);
             }
 
-            $electricityLinkArray = getElectricityLinks($electricityResult);
-            downloadFile($electricityLinkArray, ($fuel == "E" ?  "electricity": "gas"), $folderName . "/" . $code . "/");
+            if ($fuel == "E") {
+                $linkArray = getElectricityLinks($htmlContent);
+                downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/");
+            }
 
-            $electricityResult = str_replace("\n", "", $electricityResult);
-            $electricityResult = str_replace("\r", "", $electricityResult);
+            if ($fuel == "G"){
+                $linkArray = getGasLinks($htmlContent);
+                downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/");
+            }
+
+            $htmlContent = str_replace("\n", "", $htmlContent);
+            $htmlContent = str_replace("\r", "", $htmlContent);
 
             //in case there are more than 100 records we need to loop until we didn't see next button
-            while (preg_match('|class=\"fuel-type-pager.+?\".+?id=\"edit-pager-next\"|i', $electricityResult)) {
-                $formID = getFormId($electricityResult);
+            while (preg_match('|class=\"fuel-type-pager.+?\".+?id=\"edit-pager-next\"|i', $htmlContent)) {
+                $formID = getFormId($htmlContent);
                 $postdata = array(
                     "controlled_load" => 1,
                     "green_power" => 0,
@@ -156,19 +163,19 @@ foreach ($fuelTypes as $fuel) {
                 }
 
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-                $htmlResult = curl_exec($ch);
+                $htmlContent = curl_exec($ch);
 
                 if (curl_error($ch)) {
                     echo curl_error($ch);
                 }
 
                  if ($fuel == "E"){
-                     $electricityLinkArray = getElectricityLinks($htmlResult);
+                     $electricityLinkArray = getElectricityLinks($htmlContent);
                      downloadFile($electricityLinkArray, "electricity", $folderName . "/" . $code . "/");
                  }
 
                 if ($fuel == "G"){
-                    $gasLinkArray = getGasLinks($htmlResult);
+                    $gasLinkArray = getGasLinks($htmlContent);
                     downloadFile($gasLinkArray, "gas", $folderName . "/" . $code . "/");
                 }
             }
