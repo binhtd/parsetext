@@ -31,7 +31,13 @@ foreach ($filesWithFullPath as $filename) {
     $without_extension = pathinfo($filename, PATHINFO_FILENAME);
 
     echo "Convert $filename\n";
-    exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
+    try{
+        exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
+    }
+    catch(Exception $ex){
+
+    }
+
     $totalPdfFile++;
 }
 
