@@ -41,11 +41,12 @@ $time = $timeEnd - $timeStart;
 echo "Total time convert pdf->html: {$time}\n";
 echo "##################################################################################################\n";
 
-$csvHeader = array("Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
+$csvHeader = array("PDF File Name","Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
     "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "First Step",
     "Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
-    "Off peak - Controlled load 1 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Conditional Discount", "Discount %", "Discount applicable to",
+    "Off peak - Controlled load 1 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Off peak - Controlled load 2 All controlled load 1 ALL USAGE Price (exc. GST)",
+    "Off peak - Controlled load 2 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Conditional Discount", "Discount %", "Discount applicable to",
     "Are these prices fixed?", "Eligibility Criteria", "Cheque Dishonour payment fee", "Direct debit dishonour payment fee", "Payment processing fee", "Disconnection fee",
     "Reconnection fee", "Other fee", "Late payment fee", "Credit card payment processing fee", "Other fee", "Voluntary FiT"
 );
@@ -83,12 +84,13 @@ foreach (glob("*.html") as $filename) {
         continue;
     }
 
+    $pdfFileName = pathinfo($filename, PATHINFO_FILENAME) . ".pdf";
     $retailer = $offerName = $offerNo = $customerType = $fuelType = $distributor = $tariffType = $offerType = $releaseDate = "";
     $contractTerm = $contractExpiryDetails = $billFrequency = $allUsagePrice = $dailySupplyChargePrice = $firstUsagePrice = "";
     $secondUsagePrice = $thirdUsagePrice = $fourthUagePrice = $fifthUsagePrice = $balanceUsagePrice = $firstStep = $secondStep = "";
     $thirdStep = $fourthStep = $fifthStep = $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = "";
-    $conditionalDiscount = $discountPercent = $discountApplicableTo = $areThesePricesFixed = $eligibilityCriteria = $chequeDishonourPaymentFee = "";
-    $directDebitDishonourPaymentFee = $paymentProcessingFee = $disconnectionFee = $reconnectionFee = $otherFee1 = $latePaymentFee = "";
+    $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice = $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice = $conditionalDiscount = $discountPercent = $discountApplicableTo = "";
+    $areThesePricesFixed = $eligibilityCriteria = $chequeDishonourPaymentFee = $directDebitDishonourPaymentFee = $paymentProcessingFee = $disconnectionFee = $reconnectionFee = $otherFee1 = $latePaymentFee = "";
     $creditCardPaymentProcessingFee = $otherFee2 = $voluntaryFiT = "";
 
     $htmlContent = str_replace("\n", "", $htmlContent);
@@ -215,7 +217,7 @@ foreach (glob("*.html") as $filename) {
     }
 
 
-    $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Off peak - Controlled load.+?<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
+    $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Off peak - Controlled load 1.+?<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
     preg_match_all($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
@@ -225,13 +227,32 @@ foreach (glob("*.html") as $filename) {
     }
 
 
-    $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Off peak - Controlled load.+?<\/b><\/p>(<p.+?>){5}(.+?)<p|i";
+    $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Off peak - Controlled load 1.+?<\/b><\/p>(<p.+?>){5}(.+?)<p|i";
     preg_match_all($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
         $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = $out[2][0];
         $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice);
         $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice);
+    }
+
+    $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Off peak - Controlled load 2.+?<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
+    preg_match_all($offPeakControlledLoad2AllControlledLoad1ALLUSAGEPricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ((count($out) > 2) && (isset($out[2][0]))) {
+        $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice = $out[2][0];
+        $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice);
+        $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice);
+    }
+
+
+    $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Off peak - Controlled load 2.+?<\/b><\/p>(<p.+?>){5}(.+?)<p|i";
+    preg_match_all($offPeakControlledLoad2AllControlledLoad1DailySupplyChargePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ((count($out) > 2) && (isset($out[2][0]))) {
+        $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice = $out[2][0];
+        $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice);
+        $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice);
     }
 
 
@@ -594,10 +615,11 @@ foreach (glob("*.html") as $filename) {
     }
 
 
-    $extractResultArray = array($retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
+    $extractResultArray = array($pdfFileName, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
         $contractTerm, $contractExpiryDetails, $billFrequency, $allUsagePrice, $dailySupplyChargePrice, $firstUsagePrice,
         $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $firstStep, $secondStep,
         $thirdStep, $fourthStep, $fifthStep, $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
+        $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice,
         $conditionalDiscount, $discountPercent, $discountApplicableTo, $areThesePricesFixed, $eligibilityCriteria, $chequeDishonourPaymentFee,
         $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $otherFee1, $latePaymentFee,
         $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT
