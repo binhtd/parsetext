@@ -129,7 +129,7 @@ foreach (glob("*.html") as $filename) {
         $offerNameNoArray = split("-", $offerName);
 
         if (count($offerNameNoArray) > 1) {
-            $offerName = trim($offerNameNoArray[0]);
+            $offerName = trim( implode("-",array_splice($offerNameNoArray, 0, count($offerNameNoArray)-1)));
             $offerNo = trim($offerNameNoArray[count($offerNameNoArray)-1]);
         }
     }
