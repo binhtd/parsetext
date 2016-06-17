@@ -109,6 +109,7 @@ foreach (glob("*.html") as $filename) {
     $htmlContent = str_replace("\r", "", $htmlContent);
     $htmlContent = str_replace("&#160;", " ", $htmlContent);
     $htmlContent = str_replace("&#34;", '"', $htmlContent);
+    $htmlContent = str_replace("&amp;", "&", $htmlContent);
 
 
     $retailerPattern = "/body.+?<div.+?<img.+?<p.+?<p.+?>(.*?)<p/i";
