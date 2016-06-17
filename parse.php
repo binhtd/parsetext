@@ -96,7 +96,7 @@ foreach (glob("*.html") as $filename) {
         continue;
     }
 
-    $parts = explode("-", $filename);
+    $parts = explode("-", pathinfo($filename, PATHINFO_FILENAME));
     $postCode = $parts[count($parts)-1];
     $pdfFileName = pathinfo($filename, PATHINFO_FILENAME) . ".pdf";
     $retailer = $offerName = $offerNo = $customerType = $fuelType = $distributor = $tariffType = $offerType = $releaseDate = "";
@@ -432,6 +432,7 @@ foreach (glob("*.html") as $filename) {
     if ((count($out) > 1) && (isset($out[1][0]))) {
         $chequeDishonourPaymentFee = $out[1][0];
         $chequeDishonourPaymentFee = preg_replace("/[^0-9,.$]/", "", $chequeDishonourPaymentFee);
+        $chequeDishonourPaymentFee = normalizeNumber($chequeDishonourPaymentFee);
         $chequeDishonourPaymentFeeArray = explode("$", $chequeDishonourPaymentFee);
         if (isset($chequeDishonourPaymentFeeArray[1])) {
             $chequeDishonourPaymentFee = "$" . normalizeNumber($chequeDishonourPaymentFeeArray[1]);
@@ -443,10 +444,11 @@ foreach (glob("*.html") as $filename) {
 
     if ((count($out) > 1) && (isset($out[1][0]))) {
         $paymentProcessingFee = $out[1][0];
+        $paymentProcessingFee = normalizeNumber($paymentProcessingFee);
         $paymentProcessingFee = preg_replace("/[^0-9,.%]/", "", $paymentProcessingFee);
         $paymentProcessingFeeArray = explode("%", $paymentProcessingFee);
         if ($paymentProcessingFeeArray[0]) {
-            $paymentProcessingFee = $paymentProcessingFeeArray[0] . "%";
+            $paymentProcessingFee = normalizeNumber($paymentProcessingFeeArray[0]) . "%";
         }
     }
 
@@ -474,7 +476,7 @@ foreach (glob("*.html") as $filename) {
         $otherFee2 = preg_replace("/[^0-9,.$]/", "", $otherFee2);
         $otherFee2Array = explode("$", $otherFee2);
         if (isset($otherFee2Array[1])) {
-            $otherFee2 = "$" . $otherFee2Array[1];
+            $otherFee2 = "$" . normalizeNumber($otherFee2Array[1]);
         }
     }
 
@@ -624,7 +626,7 @@ foreach (glob("*.html") as $filename) {
     preg_match_all($latePaymentFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 1) && (isset($out[1][0]))) {
-        $latePaymentFee = $out[1][0];
+        $latePaymentFee = normalizeNumber($out[1][0]);
         $latePaymentFee = preg_replace("|</?.+?>|", "", $latePaymentFee);
         $latePaymentFee = preg_replace("|[^\d,.$]|", "", $latePaymentFee);
 
@@ -687,9 +689,9 @@ function printListDuplicateFile($globalDuplicateFileNames){
     }
 
     if ($hasDuplicateFile){
-        $fp = fopen('duplicate_files.txt', 'a+');
+        $fp = fopen('duplicate_files.txt', 'w');
         foreach($listDuplicateFile as $hash => $files){
-            fwrite(implode("->", $files), $fp);
+            fwrite($fp, implode("->", $files));
         }
         echo "File holds list duplicate files duplicate_files.txt\n";
         fclose($fp);
