@@ -47,7 +47,7 @@ $time = number_format($timeEnd - $timeStart, 2);
 echo "Total time convert pdf->html: {$time} s\n";
 echo "##################################################################################################\n";
 
-$csvHeader = array("PDF File Name","Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
+$csvHeader = array("PDF File Name","Postcode","Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
     "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "First Step",
     "Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
@@ -61,6 +61,10 @@ if (file_exists(__DIR__ . "/parse_result.csv")) {
     unlink(__DIR__ . "/parse_result.csv");
 }
 
+if (file_exists(__DIR__ . "/duplicate_files.txt")){
+    unlink(__DIR__ . "/duplicate_files.txt");
+}
+
 $handle = fopen(__DIR__ . "/parse_result.csv", "a+");
 fputcsv($handle, $csvHeader);
 
@@ -72,6 +76,7 @@ $timeStart = microtime(true);
 $totalHtmlFile = 0;
 
 $globalContentHtmlHashes = array();
+$globalDuplicateFileNames = array();
 foreach (glob("*.html") as $filename) {
     $filePath = __DIR__ . "/html/$filename";
     if (!file_exists($filePath)) {
@@ -83,6 +88,7 @@ foreach (glob("*.html") as $filename) {
     $htmlContent = file_get_contents($filePath);
     $htmlContentHash = md5($htmlContent);
 
+    $globalDuplicateFileNames[$htmlContentHash][] = pathinfo($filename, PATHINFO_FILENAME) . ".pdf";
     if (!in_array($htmlContentHash, $globalContentHtmlHashes)){
         $globalContentHtmlHashes[] = $htmlContentHash;
     }
@@ -90,6 +96,8 @@ foreach (glob("*.html") as $filename) {
         continue;
     }
 
+    $parts = explode("-", $filename);
+    $postCode = $parts[count($parts)-1];
     $pdfFileName = pathinfo($filename, PATHINFO_FILENAME) . ".pdf";
     $retailer = $offerName = $offerNo = $customerType = $fuelType = $distributor = $tariffType = $offerType = $releaseDate = "";
     $contractTerm = $contractExpiryDetails = $billFrequency = $allUsagePrice = $dailySupplyChargePrice = $firstUsagePrice = "";
@@ -579,6 +587,7 @@ foreach (glob("*.html") as $filename) {
         $secondStep = $out[3][0];
         $secondStep = preg_replace("|</?.+?>|", "", $secondStep);
         $secondStep = preg_replace("|[^\d,.]|", "", $secondStep);
+        $secondStep = normalizeNumber($secondStep);
     }
 
     $thirdStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next.+?<\/p>.+?next(.+?)<\/p><p|i";
@@ -588,6 +597,7 @@ foreach (glob("*.html") as $filename) {
         $thirdStep = $out[3][0];
         $thirdStep = preg_replace("|</?.+?>|", "", $thirdStep);
         $thirdStep = preg_replace("|[^\d,.]|", "", $thirdStep);
+        $thirdStep = normalizeNumber($thirdStep);
     }
 
     $fourthStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next.+?<\/p>.+?next.+?<\/p>.+?next(.+?)<\/p><p|i";
@@ -597,6 +607,7 @@ foreach (glob("*.html") as $filename) {
         $fourthStep = $out[3][0];
         $fourthStep = preg_replace("|</?.+?>|", "", $fourthStep);
         $fourthStep = preg_replace("|[^\d,.]|", "", $fourthStep);
+        $fourthStep = normalizeNumber($fourthStep);
     }
 
     $fifthStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next.+?<\/p>.+?next.+?<\/p>.+?next.+?<\/p>.+?next(.+?)<\/p><p|i";
@@ -606,6 +617,7 @@ foreach (glob("*.html") as $filename) {
         $fifthStep = $out[3][0];
         $fifthStep = preg_replace("|</?.+?>|", "", $fifthStep);
         $fifthStep = preg_replace("|[^\d,.]|", "", $fifthStep);
+        $fifthStep = normalizeNumber($fifthStep);
     }
 
     $latePaymentFeePattern = "|body.+?<b>Fees<\/b><\/p>.+?Late payment fee.+?<p.+?>(.+?)<\/p>|i";
@@ -623,7 +635,7 @@ foreach (glob("*.html") as $filename) {
     }
 
 
-    $extractResultArray = array($pdfFileName, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
+    $extractResultArray = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
         $contractTerm, $contractExpiryDetails, $billFrequency, $allUsagePrice, $dailySupplyChargePrice, $firstUsagePrice,
         $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $firstStep, $secondStep,
         $thirdStep, $fourthStep, $fifthStep, $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
@@ -643,6 +655,7 @@ echo "Total time parse document: {$time} s\n";
 echo "##################################################################################################\n";
 fclose($handle);
 
+printListDuplicateFile($globalDuplicateFileNames);
 
 function normalizeNumber($stringPresentNumber)
 {
@@ -655,4 +668,30 @@ function normalizeNumber($stringPresentNumber)
     }
 
     return $stringPresentNumber;
+}
+
+function printListDuplicateFile($globalDuplicateFileNames){
+    $hasDuplicateFile = false;
+    $listDuplicateFile = array();
+    foreach($globalDuplicateFileNames as $hash=>$files){
+        if (count($files)<1){
+            continue;
+        }
+
+        $hasDuplicateFile = true;
+        $i = 0;
+        while($i < count($files)){
+            $listDuplicateFile[$hash][] = $files[$i];
+            $i++;
+        }
+    }
+
+    if ($hasDuplicateFile){
+        $fp = fopen('duplicate_files.txt', 'a+');
+        foreach($listDuplicateFile as $hash => $files){
+            fwrite(implode("->", $files), $fp);
+        }
+        echo "File holds list duplicate files duplicate_files.txt\n";
+        fclose($fp);
+    }
 }

@@ -259,7 +259,7 @@ function downloadFile($linksArray, $pdfPrefix, $folderSubfix)
 
     foreach ($linksArray as $link) {
         $parts = explode("/", $link);
-        $fileName = "$pdfPrefix" . implode("-", $parts) . ".pdf";
+        $fileName = "$pdfPrefix" . implode("-", $parts). "-" . $parts[count($parts)-1] . ".pdf";
         $fullPath = $domain . $link;
         if (file_exists($folderPath . $fileName)) {
             continue;
