@@ -23,7 +23,7 @@ $totalPdfFile = 0;
 
 exec(" find " . __DIR__ . "/pdf/" . " -name *.pdf ", $filesWithFullPath, $returnStatus);
 
-if ((count($filesWithFullPath) < 0) || ($returnStatus !=0)){
+if ((count($filesWithFullPath) < 0) || ($returnStatus != 0)) {
     die("the pdf folder didn't have any pdf file to processing");
 }
 
@@ -31,10 +31,9 @@ foreach ($filesWithFullPath as $filename) {
     $without_extension = pathinfo($filename, PATHINFO_FILENAME);
 
     echo "Convert $filename\n";
-    try{
+    try {
         exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
-    }
-    catch(Exception $ex){
+    } catch (Exception $ex) {
 
     }
 
@@ -47,7 +46,7 @@ $time = number_format($timeEnd - $timeStart, 2);
 echo "Total time convert pdf->html: {$time} s\n";
 echo "##################################################################################################\n";
 
-$csvHeader = array("PDF File Name","Postcode","Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
+$csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
     "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "First Step",
     "Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
@@ -61,7 +60,7 @@ if (file_exists(__DIR__ . "/parse_result.csv")) {
     unlink(__DIR__ . "/parse_result.csv");
 }
 
-if (file_exists(__DIR__ . "/duplicate_files.txt")){
+if (file_exists(__DIR__ . "/duplicate_files.txt")) {
     unlink(__DIR__ . "/duplicate_files.txt");
 }
 
@@ -89,15 +88,14 @@ foreach (glob("*.html") as $filename) {
     $htmlContentHash = md5($htmlContent);
 
     $globalDuplicateFileNames[$htmlContentHash][] = pathinfo($filename, PATHINFO_FILENAME) . ".pdf";
-    if (!in_array($htmlContentHash, $globalContentHtmlHashes)){
+    if (!in_array($htmlContentHash, $globalContentHtmlHashes)) {
         $globalContentHtmlHashes[] = $htmlContentHash;
-    }
-    else{
+    } else {
         continue;
     }
 
     $parts = explode("-", pathinfo($filename, PATHINFO_FILENAME));
-    $postCode = $parts[count($parts)-1];
+    $postCode = $parts[count($parts) - 1];
     $pdfFileName = pathinfo($filename, PATHINFO_FILENAME) . ".pdf";
     $retailer = $offerName = $offerNo = $customerType = $fuelType = $distributor = $tariffType = $offerType = $releaseDate = "";
     $contractTerm = $contractExpiryDetails = $billFrequency = $allUsagePrice = $dailySupplyChargePrice = $firstUsagePrice = "";
@@ -311,10 +309,10 @@ foreach (glob("*.html") as $filename) {
         $disconnectionFee = preg_replace("|</?.+?>|", "", $disconnectionFee);
         $disconnectionFee = preg_replace("|[^$\d,. ]|", "", $disconnectionFee);
         $disconnectionFee = trim($disconnectionFee);
-        $disconnectionFeeArray = split(" ", $disconnectionFee);
+        $disconnectionFeeArray = explode("$", $disconnectionFee);
 
-        if (isset($disconnectionFeeArray)) {
-            $disconnectionFee = $disconnectionFeeArray[0];
+        if (isset($disconnectionFeeArray[1])) {
+            $disconnectionFee = "$". $disconnectionFeeArray[1];
         }
     }
 
@@ -473,6 +471,7 @@ foreach (glob("*.html") as $filename) {
         $otherFee2 = $out[1][0];
         $otherFee2 = preg_replace("|</?.+?>|", "", $otherFee2);
 
+        $otherFee2 = preg_replace("/\s[0-9,.]+/\s", "", $otherFee2);
         $otherFee2 = preg_replace("/[^0-9,.$]/", "", $otherFee2);
         $otherFee2Array = explode("$", $otherFee2);
         if (isset($otherFee2Array[1])) {
@@ -672,25 +671,26 @@ function normalizeNumber($stringPresentNumber)
     return $stringPresentNumber;
 }
 
-function printListDuplicateFile($globalDuplicateFileNames){
+function printListDuplicateFile($globalDuplicateFileNames)
+{
     $hasDuplicateFile = false;
     $listDuplicateFile = array();
-    foreach($globalDuplicateFileNames as $hash=>$files){
-        if (count($files)<1){
+    foreach ($globalDuplicateFileNames as $hash => $files) {
+        if (count($files) < 1) {
             continue;
         }
 
         $hasDuplicateFile = true;
         $i = 0;
-        while($i < count($files)){
+        while ($i < count($files)) {
             $listDuplicateFile[$hash][] = $files[$i];
             $i++;
         }
     }
 
-    if ($hasDuplicateFile){
-        $fp = fopen('duplicate_files.txt', 'w');
-        foreach($listDuplicateFile as $hash => $files){
+    if ($hasDuplicateFile) {
+        $fp = fopen(__DIR__ . '/duplicate_files.txt', 'w');
+        foreach ($listDuplicateFile as $hash => $files) {
             fwrite($fp, implode("->", $files));
         }
         echo "File holds list duplicate files duplicate_files.txt\n";

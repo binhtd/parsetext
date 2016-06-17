@@ -98,8 +98,8 @@ foreach ($fuelTypes as $fuel) {
             }
 
             //in some case when we change per page 100 we will get error so we will try to parse link before we switch per page 100
-            $linkArray = getElectricityLinks($htmlContent);
-            downloadFile($linkArray, ($fuel == "E" ?  "electricity": "gas"), $folderName . "/" . $code . "/");
+            $linkArray = ($fuel == "E" ? getElectricityLinks($htmlContent) : getGasLinks($htmlContent));
+            downloadFile($linkArray, ($fuel == "E" ?  "electricity": "gas"), $folderName . "/" . $code . "/", $code);
 
 
             //get data for electronic tab with per_page 100
@@ -131,12 +131,12 @@ foreach ($fuelTypes as $fuel) {
 
             if ($fuel == "E") {
                 $linkArray = getElectricityLinks($htmlContent);
-                downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/");
+                downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/", $code);
             }
 
             if ($fuel == "G"){
                 $linkArray = getGasLinks($htmlContent);
-                downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/");
+                downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/", $code);
             }
 
             $htmlContent = str_replace("\n", "", $htmlContent);
@@ -171,12 +171,12 @@ foreach ($fuelTypes as $fuel) {
 
                  if ($fuel == "E"){
                      $electricityLinkArray = getElectricityLinks($htmlContent);
-                     downloadFile($electricityLinkArray, "electricity", $folderName . "/" . $code . "/");
+                     downloadFile($electricityLinkArray, "electricity", $folderName . "/" . $code . "/", $code);
                  }
 
                 if ($fuel == "G"){
                     $gasLinkArray = getGasLinks($htmlContent);
-                    downloadFile($gasLinkArray, "gas", $folderName . "/" . $code . "/");
+                    downloadFile($gasLinkArray, "gas", $folderName . "/" . $code . "/", $code);
                 }
             }
 
@@ -251,7 +251,7 @@ function getFormId($htmlContent)
 }
 
 
-function downloadFile($linksArray, $pdfPrefix, $folderSubfix)
+function downloadFile($linksArray, $pdfPrefix, $folderSubfix, $postCode)
 {
     $domain = "https://www.energymadeeasy.gov.au";
     $folderPath = __DIR__ . "/pdf/$folderSubfix";
@@ -259,7 +259,7 @@ function downloadFile($linksArray, $pdfPrefix, $folderSubfix)
 
     foreach ($linksArray as $link) {
         $parts = explode("/", $link);
-        $fileName = "$pdfPrefix" . implode("-", $parts). "-" . $parts[count($parts)-1] . ".pdf";
+        $fileName = "$pdfPrefix" . implode("-", $parts). "-$postCode.pdf";
         $fullPath = $domain . $link;
         if (file_exists($folderPath . $fileName)) {
             continue;
