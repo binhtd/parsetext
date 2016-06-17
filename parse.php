@@ -305,10 +305,10 @@ foreach (glob("*.html") as $filename) {
     preg_match_all($disconnectionFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
-        $disconnectionFee = $out[2][0];
+        $disconnectionFee =  $out[2][0];
         $disconnectionFee = preg_replace("|</?.+?>|", "", $disconnectionFee);
-        $disconnectionFee = preg_replace("|[^$\d,. ]|", "", $disconnectionFee);
-        $disconnectionFee = trim($disconnectionFee);
+        $disconnectionFee = preg_replace("|[^$\d,.]|", "", $disconnectionFee);
+        $disconnectionFee = normalizeNumber($disconnectionFee);
         $disconnectionFeeArray = explode("$", $disconnectionFee);
 
         if (isset($disconnectionFeeArray[1])) {
@@ -443,10 +443,10 @@ foreach (glob("*.html") as $filename) {
 
     if ((count($out) > 1) && (isset($out[1][0]))) {
         $paymentProcessingFee = $out[1][0];
-        $paymentProcessingFee = normalizeNumber($paymentProcessingFee);
         $paymentProcessingFee = preg_replace("/[^0-9,.%]/", "", $paymentProcessingFee);
+        $paymentProcessingFee = normalizeNumber($paymentProcessingFee);
         $paymentProcessingFeeArray = explode("%", $paymentProcessingFee);
-        if ($paymentProcessingFeeArray[0]) {
+        if ( isset($paymentProcessingFeeArray[0])) {
             if (preg_match("|%|", $paymentProcessingFee)){
                 $paymentProcessingFee = normalizeNumber($paymentProcessingFeeArray[0]) . "%";
             }else{
@@ -465,6 +465,7 @@ foreach (glob("*.html") as $filename) {
         $otherFee1 = $out[2][0];
 
         $otherFee1 = preg_replace("/\s(\d+[^,.]\d*)*\s/", "", $otherFee1);
+        $otherFee1 = preg_replace("|\s[0-9,.]+\s|", "", $otherFee1);
         $otherFee1 = preg_replace("/[^0-9,.$]/", "", $otherFee1);
         $otherFee1Array = explode("$", $otherFee1);
         if (isset($otherFee1Array[1])) {
@@ -684,7 +685,7 @@ function printListDuplicateFile($globalDuplicateFileNames)
     $hasDuplicateFile = false;
     $listDuplicateFile = array();
     foreach ($globalDuplicateFileNames as $hash => $files) {
-        if (count($files) < 1) {
+        if (count($files) < 2) {
             continue;
         }
 
@@ -699,6 +700,7 @@ function printListDuplicateFile($globalDuplicateFileNames)
     if ($hasDuplicateFile) {
         $fp = fopen(__DIR__ . '/duplicate_files.txt', 'w');
         foreach ($listDuplicateFile as $hash => $files) {
+            var_dump($files);
             fwrite($fp, implode("->", $files));
         }
         echo "File holds list duplicate files duplicate_files.txt\n";
