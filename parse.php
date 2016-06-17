@@ -130,7 +130,7 @@ foreach (glob("*.html") as $filename) {
 
         if (count($offerNameNoArray) > 1) {
             $offerName = trim($offerNameNoArray[0]);
-            $offerNo = trim($offerNameNoArray[1]);
+            $offerNo = trim($offerNameNoArray[count($offerNameNoArray)-1]);
         }
     }
 
