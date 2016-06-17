@@ -43,7 +43,7 @@ foreach ($filesWithFullPath as $filename) {
 $timeEnd = microtime(true);
 echo "Finish convert $totalPdfFile files\n";
 $time = number_format($timeEnd - $timeStart, 2);
-echo "Total time convert pdf->html: {$time} s\n";
+echo "Total time convert pdf->html: {$time}s\n";
 echo "##################################################################################################\n";
 
 $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
@@ -312,7 +312,7 @@ foreach (glob("*.html") as $filename) {
         $disconnectionFeeArray = explode("$", $disconnectionFee);
 
         if (isset($disconnectionFeeArray[1])) {
-            $disconnectionFee = "$". $disconnectionFeeArray[1];
+            $disconnectionFee = "$". normalizeNumber($disconnectionFeeArray[1]);
         }
     }
 
@@ -320,14 +320,15 @@ foreach (glob("*.html") as $filename) {
     preg_match_all($reconnectionFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
-        $reconnectionFee = $out[2][0];
+        $reconnectionFee = normalizeNumber($out[2][0]);
         $reconnectionFee = preg_replace("|</?.+?>|", "", $reconnectionFee);
         $reconnectionFee = preg_replace("|[^$\d,. ]|", "", $reconnectionFee);
         $reconnectionFee = trim($reconnectionFee);
         $reconnectionFeeArray = split(" ", $reconnectionFee);
         if (isset($reconnectionFeeArray[0])) {
-            $reconnectionFee = $reconnectionFeeArray[0];
+            $reconnectionFee = normalizeNumber($reconnectionFeeArray[0]);
         }
+
     }
 
     $creditCardPaymentProcessingFeePattern = "|body.+?>Credit card payment processing fee<\/p>(<p.+?>){1}(.+?)<p|i";
@@ -446,7 +447,14 @@ foreach (glob("*.html") as $filename) {
         $paymentProcessingFee = preg_replace("/[^0-9,.%]/", "", $paymentProcessingFee);
         $paymentProcessingFeeArray = explode("%", $paymentProcessingFee);
         if ($paymentProcessingFeeArray[0]) {
-            $paymentProcessingFee = normalizeNumber($paymentProcessingFeeArray[0]) . "%";
+            if (preg_match("|%|", $paymentProcessingFee)){
+                $paymentProcessingFee = normalizeNumber($paymentProcessingFeeArray[0]) . "%";
+            }else{
+                $paymentProcessingFeeArray = explode("$", $paymentProcessingFee);
+                    if (isset($paymentProcessingFeeArray[1])){
+                    $paymentProcessingFee = "$" . normalizeNumber($paymentProcessingFeeArray[1]);
+                }
+            }
         }
     }
 
@@ -471,7 +479,7 @@ foreach (glob("*.html") as $filename) {
         $otherFee2 = $out[1][0];
         $otherFee2 = preg_replace("|</?.+?>|", "", $otherFee2);
 
-        $otherFee2 = preg_replace("/\s[0-9,.]+/\s", "", $otherFee2);
+        $otherFee2 = preg_replace("|\s[0-9,.]+\s|", "", $otherFee2);
         $otherFee2 = preg_replace("/[^0-9,.$]/", "", $otherFee2);
         $otherFee2Array = explode("$", $otherFee2);
         if (isset($otherFee2Array[1])) {
@@ -652,7 +660,7 @@ $timeEnd = microtime(true);
 $time = $timeEnd - $timeStart;
 echo "Finish parse $totalHtmlFile files\n";
 $time = number_format($timeEnd - $timeStart, 2);
-echo "Total time parse document: {$time} s\n";
+echo "Total time parse document: {$time}s\n";
 echo "##################################################################################################\n";
 fclose($handle);
 
@@ -668,7 +676,7 @@ function normalizeNumber($stringPresentNumber)
         $stringPresentNumber = preg_replace('/.$/', '', $stringPresentNumber);
     }
 
-    return $stringPresentNumber;
+    return trim($stringPresentNumber);
 }
 
 function printListDuplicateFile($globalDuplicateFileNames)
