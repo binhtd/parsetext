@@ -12,39 +12,39 @@ if (!is_dir(__DIR__ . "/pdf")) {
     die("Folder holds pdf does not exist inside " . __DIR__ . "\n");
 }
 
-if (file_exists(__DIR__ . "/html")) {
-    system("rm -rf " . escapeshellarg(__DIR__ . "/html"));
-}
-mkdir(__DIR__ . "/html");
-echo "##################################################################################################\n";
-echo "Convert pdf to html\n";
-$timeStart = microtime(true);
-$totalPdfFile = 0;
-
-exec(" find " . __DIR__ . "/pdf/" . " -name *.pdf ", $filesWithFullPath, $returnStatus);
-
-if ((count($filesWithFullPath) < 0) || ($returnStatus != 0)) {
-    die("the pdf folder didn't have any pdf file to processing");
-}
-
-foreach ($filesWithFullPath as $filename) {
-    $without_extension = pathinfo($filename, PATHINFO_FILENAME);
-
-    echo "Convert $filename\n";
-    try {
-        exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
-    } catch (Exception $ex) {
-
-    }
-
-    $totalPdfFile++;
-}
-
-$timeEnd = microtime(true);
-echo "Finish convert $totalPdfFile files\n";
-$time = number_format($timeEnd - $timeStart, 2);
-echo "Total time convert pdf->html: {$time}s\n";
-echo "##################################################################################################\n";
+//if (file_exists(__DIR__ . "/html")) {
+//    system("rm -rf " . escapeshellarg(__DIR__ . "/html"));
+//}
+//mkdir(__DIR__ . "/html");
+//echo "##################################################################################################\n";
+//echo "Convert pdf to html\n";
+//$timeStart = microtime(true);
+//$totalPdfFile = 0;
+//
+//exec(" find " . __DIR__ . "/pdf/" . " -name *.pdf ", $filesWithFullPath, $returnStatus);
+//
+//if ((count($filesWithFullPath) < 0) || ($returnStatus != 0)) {
+//    die("the pdf folder didn't have any pdf file to processing");
+//}
+//
+//foreach ($filesWithFullPath as $filename) {
+//    $without_extension = pathinfo($filename, PATHINFO_FILENAME);
+//
+//    echo "Convert $filename\n";
+//    try {
+//        exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
+//    } catch (Exception $ex) {
+//
+//    }
+//
+//    $totalPdfFile++;
+//}
+//
+//$timeEnd = microtime(true);
+//echo "Finish convert $totalPdfFile files\n";
+//$time = number_format($timeEnd - $timeStart, 2);
+//echo "Total time convert pdf->html: {$time}s\n";
+//echo "##################################################################################################\n";
 
 $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
@@ -373,40 +373,40 @@ foreach (glob("*.html") as $filename) {
         $balanceUsagePrice = preg_replace("|[^\d,.]|", "", $balanceUsagePrice);
     }
 
-    $firstStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}First.+?<\/p>(.+?)<p|i";
-    preg_match_all($firstStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+    $secondUsagePricePattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}First.+?<\/p>(.+?)<p|i";
+    preg_match_all($secondUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
-        $firstStep = $out[2][0];
-        $firstStep = preg_replace("|</?.+?>|", "", $firstStep);
-        $firstStep = preg_replace("|[^\d,.]|", "", $firstStep);
+        $secondUsagePrice = $out[2][0];
+        $secondUsagePrice = preg_replace("|</?.+?>|", "", $secondUsagePrice);
+        $secondUsagePrice = preg_replace("|[^\d,.]|", "", $secondUsagePrice);
     }
 
-    $secondStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?<\/p>(.+?)<p|i";
-    preg_match_all($secondStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+    $thirdUsagePricePattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?<\/p>(.+?)<p|i";
+    preg_match_all($thirdUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
-        $secondStep = $out[2][0];
-        $secondStep = preg_replace("|</?.+?>|", "", $secondStep);
-        $secondStep = preg_replace("|[^\d,.]|", "", $secondStep);
+        $thirdUsagePrice = $out[2][0];
+        $thirdUsagePrice = preg_replace("|</?.+?>|", "", $thirdUsagePrice);
+        $thirdUsagePrice = preg_replace("|[^\d,.]|", "", $thirdUsagePrice);
     }
 
-    $thirdStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?Next.+?<\/p>(.+?)<p|i";
-    preg_match_all($thirdStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+    $fourthUagePricePattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?Next.+?<\/p>(.+?)<p|i";
+    preg_match_all($fourthUagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
-        $thirdStep = $out[2][0];
-        $thirdStep = preg_replace("|</?.+?>|", "", $thirdStep);
-        $thirdStep = preg_replace("|[^\d,.]|", "", $thirdStep);
+        $fourthUagePrice = $out[2][0];
+        $fourthUagePrice = preg_replace("|</?.+?>|", "", $fourthUagePrice);
+        $fourthUagePrice = preg_replace("|[^\d,.]|", "", $fourthUagePrice);
     }
 
-    $fourthStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?Next.+?Next.+?<\/p>(.+?)<p|i";
-    preg_match_all($fourthStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+    $fifthUsagePricePattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?Next.+?Next.+?<\/p>(.+?)<p|i";
+    preg_match_all($fifthUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
-        $fourthStep = $out[2][0];
-        $fourthStep = preg_replace("|</?.+?>|", "", $fourthStep);
-        $fourthStep = preg_replace("|[^\d,.]|", "", $fourthStep);
+        $fifthUsagePrice = $out[2][0];
+        $fifthUsagePrice = preg_replace("|</?.+?>|", "", $fifthUsagePrice);
+        $fifthUsagePrice = preg_replace("|[^\d,.]|", "", $fifthUsagePrice);
     }
 
 
