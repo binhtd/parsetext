@@ -409,10 +409,10 @@ foreach (glob("*.html") as $filename) {
         $fifthUsagePrice = preg_replace("|[^\d,.]|", "", $fifthUsagePrice);
 
         if ($balanceUsagePricePattern == $fifthUsagePrice){
-            $fifthStep = "";
+            $fifthUsagePrice = "";
         }
     }
-    
+
     $conditionalDiscountPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){1}(.+?)<p|i";
     preg_match_all($conditionalDiscountPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
