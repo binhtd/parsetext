@@ -407,23 +407,12 @@ foreach (glob("*.html") as $filename) {
         $fifthUsagePrice = $out[2][0];
         $fifthUsagePrice = preg_replace("|</?.+?>|", "", $fifthUsagePrice);
         $fifthUsagePrice = preg_replace("|[^\d,.]|", "", $fifthUsagePrice);
-    }
 
-
-    $fifthStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?Next.+?Next.+?Next.+?<\/p>(.+?)<p.+?<b|i";
-    preg_match_all($fifthStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
-
-    if ((count($out) > 2) && (isset($out[2][0]))) {
-        $fifthStep = $out[2][0];
-        $fifthStep = preg_replace("|</?.+?>|", "", $fifthStep);
-        $fifthStep = preg_replace("|[^\d,.]|", "", $fifthStep);
-
-        if ($balanceUsagePricePattern == $fifthStep){
+        if ($balanceUsagePricePattern == $fifthUsagePrice){
             $fifthStep = "";
         }
     }
-
-
+    
     $conditionalDiscountPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){1}(.+?)<p|i";
     preg_match_all($conditionalDiscountPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
