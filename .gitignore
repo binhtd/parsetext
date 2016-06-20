@@ -1,1 +1,5 @@
+pdf/*
 .idea/
+html/*
+parse_result.csv
+.gitignore
