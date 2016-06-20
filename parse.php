@@ -408,7 +408,7 @@ foreach (glob("*.html") as $filename) {
         $fifthUsagePrice = preg_replace("|</?.+?>|", "", $fifthUsagePrice);
         $fifthUsagePrice = preg_replace("|[^\d,.]|", "", $fifthUsagePrice);
 
-        if ($balanceUsagePricePattern == $fifthUsagePrice){
+        if ($balanceUsagePrice == $fifthUsagePrice){
             $fifthUsagePrice = "";
         }
     }
