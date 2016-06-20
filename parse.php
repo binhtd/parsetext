@@ -130,8 +130,8 @@ foreach (glob("*.html") as $filename) {
         $offerNameNoArray = split("-", $offerName);
 
         if (count($offerNameNoArray) > 1) {
-            $offerName = trim( implode("-",array_splice($offerNameNoArray, 0, count($offerNameNoArray)-1)));
-            $offerNo = trim($offerNameNoArray[count($offerNameNoArray)-1]);
+            $offerName = trim(implode("-", array_splice($offerNameNoArray, 0, count($offerNameNoArray) - 1)));
+            $offerNo = trim($offerNameNoArray[count($offerNameNoArray) - 1]);
         }
     }
 
@@ -306,14 +306,14 @@ foreach (glob("*.html") as $filename) {
     preg_match_all($disconnectionFeePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
-        $disconnectionFee =  $out[2][0];
+        $disconnectionFee = $out[2][0];
         $disconnectionFee = preg_replace("|</?.+?>|", "", $disconnectionFee);
         $disconnectionFee = preg_replace("|[^$\d,.]|", "", $disconnectionFee);
         $disconnectionFee = normalizeNumber($disconnectionFee);
         $disconnectionFeeArray = explode("$", $disconnectionFee);
 
         if (isset($disconnectionFeeArray[1])) {
-            $disconnectionFee = "$". normalizeNumber($disconnectionFeeArray[1]);
+            $disconnectionFee = "$" . normalizeNumber($disconnectionFeeArray[1]);
         }
     }
 
@@ -373,7 +373,7 @@ foreach (glob("*.html") as $filename) {
         $balanceUsagePrice = preg_replace("|[^\d,.]|", "", $balanceUsagePrice);
     }
 
-    $firstStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}(First.+?)<p|i";
+    $firstStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}First.+?<\/p>(.+?)<p|i";
     preg_match_all($firstStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
@@ -381,6 +381,48 @@ foreach (glob("*.html") as $filename) {
         $firstStep = preg_replace("|</?.+?>|", "", $firstStep);
         $firstStep = preg_replace("|[^\d,.]|", "", $firstStep);
     }
+
+    $secondStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?<\/p>(.+?)<p|i";
+    preg_match_all($secondStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ((count($out) > 2) && (isset($out[2][0]))) {
+        $secondStep = $out[2][0];
+        $secondStep = preg_replace("|</?.+?>|", "", $secondStep);
+        $secondStep = preg_replace("|[^\d,.]|", "", $secondStep);
+    }
+
+    $thirdStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?Next.+?<\/p>(.+?)<p|i";
+    preg_match_all($thirdStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ((count($out) > 2) && (isset($out[2][0]))) {
+        $thirdStep = $out[2][0];
+        $thirdStep = preg_replace("|</?.+?>|", "", $thirdStep);
+        $thirdStep = preg_replace("|[^\d,.]|", "", $thirdStep);
+    }
+
+    $fourthStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?Next.+?Next.+?<\/p>(.+?)<p|i";
+    preg_match_all($fourthStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ((count($out) > 2) && (isset($out[2][0]))) {
+        $fourthStep = $out[2][0];
+        $fourthStep = preg_replace("|</?.+?>|", "", $fourthStep);
+        $fourthStep = preg_replace("|[^\d,.]|", "", $fourthStep);
+    }
+
+
+    $fifthStepPattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?Next.+?Next.+?Next.+?<\/p>(.+?)<p.+?<b|i";
+    preg_match_all($fifthStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ((count($out) > 2) && (isset($out[2][0]))) {
+        $fifthStep = $out[2][0];
+        $fifthStep = preg_replace("|</?.+?>|", "", $fifthStep);
+        $fifthStep = preg_replace("|[^\d,.]|", "", $fifthStep);
+
+        if ($balanceUsagePricePattern == $fifthStep){
+            $fifthStep = "";
+        }
+    }
+
 
     $conditionalDiscountPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){1}(.+?)<p|i";
     preg_match_all($conditionalDiscountPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
@@ -447,12 +489,12 @@ foreach (glob("*.html") as $filename) {
         $paymentProcessingFee = preg_replace("/[^0-9,.%]/", "", $paymentProcessingFee);
         $paymentProcessingFee = normalizeNumber($paymentProcessingFee);
         $paymentProcessingFeeArray = explode("%", $paymentProcessingFee);
-        if ( isset($paymentProcessingFeeArray[0])) {
-            if (preg_match("|%|", $paymentProcessingFee)){
+        if (isset($paymentProcessingFeeArray[0])) {
+            if (preg_match("|%|", $paymentProcessingFee)) {
                 $paymentProcessingFee = normalizeNumber($paymentProcessingFeeArray[0]) . "%";
-            }else{
+            } else {
                 $paymentProcessingFeeArray = explode("$", $paymentProcessingFee);
-                    if (isset($paymentProcessingFeeArray[1])){
+                if (isset($paymentProcessingFeeArray[1])) {
                     $paymentProcessingFee = "$" . normalizeNumber($paymentProcessingFeeArray[1]);
                 }
             }
