@@ -575,6 +575,26 @@ foreach (glob("*.html") as $filename) {
         }
     }
 
+    if (empty($discountPercent)){
+         $discountPercentPattern = "|body.+?<b>Guaranteed discounts<\/b><\/p>(.+?)<\/p>(.+?)<\/p|i";
+        preg_match_all($discountPercentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>2) && isset($out[2][0])){
+            $discountPercent = $out[2][0];
+            $discountPercent = preg_replace("|</?.+?>|", "", $discountPercent);
+            $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
+
+            $discountPercent = normalizeNumber($discountPercent);
+
+            if (empty($discountPercent) && isset($out[1][0])){
+                $discountPercent = $out[1][0];
+                $discountPercent = preg_replace("|</?.+?>|", "", $discountPercent);
+                $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
+                $discountPercent = normalizeNumber($discountPercent);
+            }
+        }
+    }
+
     $discountApplicableToPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
     preg_match_all($discountApplicableToPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
     if ((count($out) > 2) && (isset($out[2][0])) && preg_match("/Usage charges/i", $out[2][0])) {
