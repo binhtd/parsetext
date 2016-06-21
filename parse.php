@@ -407,27 +407,24 @@ foreach (glob("*.html") as $filename) {
         $firstUsagePrice = preg_replace("|</?.+?>|", "", $firstUsagePrice);
         $firstUsagePrice = preg_replace("|[^\d,.]|", "", $firstUsagePrice);
 
+        $firstUsagePrice = normalizeNumber($firstUsagePrice);
         if (isset($out[1][0]) && !preg_match("|first|i", $out[1][0])) {
             $firstUsagePrice = "";
         }
     }
 
-    $balanceUsagePricePattern = "#body.+?Remaining usage per day<\/p>(<p.+?>){1}(.+?)<p#i";
+    $balanceUsagePricePattern = "#body.+?<b>Electricity pricing information<\/b>.+?Remaining usage per.+?<\/p>(.+?)<\/p#i";
     preg_match_all($balanceUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ((count($out) > 2) && (isset($out[2][0]))) {
-        $balanceUsagePrice = $out[2][0];
+    if ((count($out) > 1) && (isset($out[1][0]))) {
+        $balanceUsagePrice = $out[1][0];
         $balanceUsagePrice = preg_replace("|</?.+?>|", "", $balanceUsagePrice);
         $balanceUsagePrice = preg_replace("|[^\d,.]|", "", $balanceUsagePrice);
-    }
 
-    $balanceUsagePricePattern = "#body.+?Remaining usage per month<\/p>(<p.+?>){1}(.+?)<p#i";
-    preg_match_all($balanceUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
-
-    if (empty($balanceUsagePrice) && (count($out) > 2) && (isset($out[2][0]))) {
-        $balanceUsagePrice = $out[2][0];
-        $balanceUsagePrice = preg_replace("|</?.+?>|", "", $balanceUsagePrice);
-        $balanceUsagePrice = preg_replace("|[^\d,.]|", "", $balanceUsagePrice);
+        $balanceUsagePrice = normalizeNumber($balanceUsagePrice);
+        if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
+            $balanceUsagePrice = "";
+        }
     }
 
     $secondUsagePricePattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}First.+?<\/p>(.+?)<p|i";
@@ -437,6 +434,9 @@ foreach (glob("*.html") as $filename) {
         $secondUsagePrice = $out[2][0];
         $secondUsagePrice = preg_replace("|</?.+?>|", "", $secondUsagePrice);
         $secondUsagePrice = preg_replace("|[^\d,.]|", "", $secondUsagePrice);
+
+        $secondUsagePrice = normalizeNumber($secondUsagePrice);
+
     }
 
     $secondUsagePricePattern = "|body.+?<b>Electricity pricing information<\/b><\/p>(.+?next.+?)<\/p>(.+?)<p|i";
@@ -447,6 +447,7 @@ foreach (glob("*.html") as $filename) {
         $secondUsagePrice = preg_replace("|</?.+?>|", "", $secondUsagePrice);
         $secondUsagePrice = preg_replace("|[^\d,.]|", "", $secondUsagePrice);
 
+        $secondUsagePrice = normalizeNumber($secondUsagePrice);
         if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
             $secondUsagePrice = "";
         }
@@ -459,6 +460,8 @@ foreach (glob("*.html") as $filename) {
         $thirdUsagePrice = $out[2][0];
         $thirdUsagePrice = preg_replace("|</?.+?>|", "", $thirdUsagePrice);
         $thirdUsagePrice = preg_replace("|[^\d,.]|", "", $thirdUsagePrice);
+
+        $thirdUsagePrice = normalizeNumber($thirdUsagePrice);
     }
 
 
@@ -469,6 +472,8 @@ foreach (glob("*.html") as $filename) {
         $thirdUsagePrice = $out[2][0];
         $thirdUsagePrice = preg_replace("|</?.+?>|", "", $thirdUsagePrice);
         $thirdUsagePrice = preg_replace("|[^\d,.]|", "", $thirdUsagePrice);
+
+        $thirdUsagePrice = normalizeNumber($thirdUsagePrice);
 
         if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
             $thirdUsagePrice = "";
@@ -482,6 +487,8 @@ foreach (glob("*.html") as $filename) {
         $fourthUagePrice = $out[2][0];
         $fourthUagePrice = preg_replace("|</?.+?>|", "", $fourthUagePrice);
         $fourthUagePrice = preg_replace("|[^\d,.]|", "", $fourthUagePrice);
+
+        $fourthUagePrice = normalizeNumber($fourthUagePrice);
     }
 
     $fourthUagePricePattern = "|body.+?<b>Electricity pricing information<\/b><\/p>(<p.+?>){1}Next.+?Next.+?Next.+?<\/p>(.+?)<p|i";
@@ -491,6 +498,7 @@ foreach (glob("*.html") as $filename) {
         $fourthUagePrice = $out[2][0];
         $fourthUagePrice = preg_replace("|</?.+?>|", "", $fourthUagePrice);
         $fourthUagePrice = preg_replace("|[^\d,.]|", "", $fourthUagePrice);
+        $fourthUagePrice = normalizeNumber($fourthUagePrice);
 
         if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
             $fourthUagePrice = "";
@@ -505,6 +513,7 @@ foreach (glob("*.html") as $filename) {
         $fifthUsagePrice = preg_replace("|</?.+?>|", "", $fifthUsagePrice);
         $fifthUsagePrice = preg_replace("|[^\d,.]|", "", $fifthUsagePrice);
 
+        $fifthUsagePrice = normalizeNumber($fifthUsagePrice);
         if ($balanceUsagePrice == $fifthUsagePrice) {
             $fifthUsagePrice = "";
         }
@@ -518,6 +527,7 @@ foreach (glob("*.html") as $filename) {
         $fifthUsagePrice = preg_replace("|</?.+?>|", "", $fifthUsagePrice);
         $fifthUsagePrice = preg_replace("|[^\d,.]|", "", $fifthUsagePrice);
 
+        $fifthUsagePrice = normalizeNumber($fifthUsagePrice);
         if ($balanceUsagePrice == $fifthUsagePrice) {
             $fifthUsagePrice = "";
         }
