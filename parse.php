@@ -12,39 +12,39 @@ if (!is_dir(__DIR__ . "/pdf")) {
     die("Folder holds pdf does not exist inside " . __DIR__ . "\n");
 }
 
-if (file_exists(__DIR__ . "/html")) {
-    system("rm -rf " . escapeshellarg(__DIR__ . "/html"));
-}
-mkdir(__DIR__ . "/html");
-echo "##################################################################################################\n";
-echo "Convert pdf to html\n";
-$timeStart = microtime(true);
-$totalPdfFile = 0;
-
-exec(" find " . __DIR__ . "/pdf/" . " -name *.pdf ", $filesWithFullPath, $returnStatus);
-
-if ((count($filesWithFullPath) < 0) || ($returnStatus != 0)) {
-    die("the pdf folder didn't have any pdf file to processing");
-}
-
-foreach ($filesWithFullPath as $filename) {
-    $without_extension = pathinfo($filename, PATHINFO_FILENAME);
-
-    echo "Convert $filename\n";
-    try {
-        exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
-    } catch (Exception $ex) {
-
-    }
-
-    $totalPdfFile++;
-}
-
-$timeEnd = microtime(true);
-echo "Finish convert $totalPdfFile files\n";
-$time = number_format($timeEnd - $timeStart, 2);
-echo "Total time convert pdf->html: {$time}s\n";
-echo "##################################################################################################\n";
+//if (file_exists(__DIR__ . "/html")) {
+//    system("rm -rf " . escapeshellarg(__DIR__ . "/html"));
+//}
+//mkdir(__DIR__ . "/html");
+//echo "##################################################################################################\n";
+//echo "Convert pdf to html\n";
+//$timeStart = microtime(true);
+//$totalPdfFile = 0;
+//
+//exec(" find " . __DIR__ . "/pdf/" . " -name *.pdf ", $filesWithFullPath, $returnStatus);
+//
+//if ((count($filesWithFullPath) < 0) || ($returnStatus != 0)) {
+//    die("the pdf folder didn't have any pdf file to processing");
+//}
+//
+//foreach ($filesWithFullPath as $filename) {
+//    $without_extension = pathinfo($filename, PATHINFO_FILENAME);
+//
+//    echo "Convert $filename\n";
+//    try {
+//        exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
+//    } catch (Exception $ex) {
+//
+//    }
+//
+//    $totalPdfFile++;
+//}
+//
+//$timeEnd = microtime(true);
+//echo "Finish convert $totalPdfFile files\n";
+//$time = number_format($timeEnd - $timeStart, 2);
+//echo "Total time convert pdf->html: {$time}s\n";
+//echo "##################################################################################################\n";
 
 $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
@@ -243,7 +243,7 @@ foreach (glob("*.html") as $filename) {
         $allUsagePrice = preg_replace("|</?.+?>|", "", $allUsagePrice);
         $allUsagePrice = preg_replace("|[^\d,.]|", "", $allUsagePrice);
 
-        if ( preg_match("/Controlled load/i", $out[0][0])) {
+        if ( preg_match("/Daily supply charge/i", $out[0][0])) {
             $allUsagePrice = "";
         }
     }
