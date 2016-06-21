@@ -736,6 +736,21 @@ foreach (glob("*.html") as $filename) {
         $firstStep = preg_replace("|[^\d,.]|", "", $firstStep);
     }
 
+    $firstStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?first(.+?)<\/p>|i";
+    preg_match_all($firstStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+
+    if ( empty($firstStep) && (count($out) > 1) && (isset($out[1][0]))) {
+        $firstStep = $out[1][0];
+        $firstStep = preg_replace("|</?.+?>|", "", $firstStep);
+        $firstStep = preg_replace("|[^\d,.]|", "", $firstStep);
+
+        if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
+            $firstStep = "";
+        }
+    }
+
+
     $secondStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next(.+?)<\/p>|i";
     preg_match_all($secondStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
@@ -744,6 +759,20 @@ foreach (glob("*.html") as $filename) {
         $secondStep = preg_replace("|</?.+?>|", "", $secondStep);
         $secondStep = preg_replace("|[^\d,.]|", "", $secondStep);
         $secondStep = normalizeNumber($secondStep);
+    }
+
+    $secondStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?next(.+?)<\/p>|i";
+    preg_match_all($secondStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( empty($secondStep) && (count($out) > 1) && (isset($out[1][0]))) {
+        $secondStep = $out[1][0];
+        $secondStep = preg_replace("|</?.+?>|", "", $secondStep);
+        $secondStep = preg_replace("|[^\d,.]|", "", $secondStep);
+        $secondStep = normalizeNumber($secondStep);
+
+        if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
+            $secondStep = "";
+        }
     }
 
     $thirdStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next.+?<\/p>.+?next(.+?)<\/p><p|i";
@@ -756,6 +785,21 @@ foreach (glob("*.html") as $filename) {
         $thirdStep = normalizeNumber($thirdStep);
     }
 
+
+    $thirdStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?next.+?next(.+?)<\/p>|i";
+    preg_match_all($thirdStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if (empty($thirdStep) && (count($out) > 1) && (isset($out[1][0]))) {
+        $thirdStep = $out[1][0];
+        $thirdStep = preg_replace("|</?.+?>|", "", $thirdStep);
+        $thirdStep = preg_replace("|[^\d,.]|", "", $thirdStep);
+        $thirdStep = normalizeNumber($thirdStep);
+
+        if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
+            $thirdStep = "";
+        }
+    }
+
     $fourthStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next.+?<\/p>.+?next.+?<\/p>.+?next(.+?)<\/p><p|i";
     preg_match_all($fourthStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
@@ -766,6 +810,20 @@ foreach (glob("*.html") as $filename) {
         $fourthStep = normalizeNumber($fourthStep);
     }
 
+    $fourthStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?next.+?next.+?next(.+?)<\/p>|i";
+    preg_match_all($fourthStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if (empty($fourthStep) && (count($out) > 1) && (isset($out[1][0]))) {
+        $fourthStep = $out[1][0];
+        $fourthStep = preg_replace("|</?.+?>|", "", $fourthStep);
+        $fourthStep = preg_replace("|[^\d,.]|", "", $fourthStep);
+        $fourthStep = normalizeNumber($fourthStep);
+
+        if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
+            $fourthStep = "";
+        }
+    }
+
     $fifthStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next.+?<\/p>.+?next.+?<\/p>.+?next.+?<\/p>.+?next(.+?)<\/p><p|i";
     preg_match_all($fifthStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
@@ -774,6 +832,20 @@ foreach (glob("*.html") as $filename) {
         $fifthStep = preg_replace("|</?.+?>|", "", $fifthStep);
         $fifthStep = preg_replace("|[^\d,.]|", "", $fifthStep);
         $fifthStep = normalizeNumber($fifthStep);
+    }
+
+    $fifthStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?next.+?next.+?next.+?next(.+?)<\/p>|i";
+    preg_match_all($fifthStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( empty($fifthStep) && (count($out) > 1) && (isset($out[1][0]))) {
+        $fifthStep = $out[1][0];
+        $fifthStep = preg_replace("|</?.+?>|", "", $fifthStep);
+        $fifthStep = preg_replace("|[^\d,.]|", "", $fifthStep);
+        $fifthStep = normalizeNumber($fifthStep);
+
+        if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
+            $fifthStep = "";
+        }
     }
 
     $latePaymentFeePattern = "|body.+?<b>Fees<\/b><\/p>.+?Late payment fee.+?<p.+?>(.+?)<\/p>|i";
