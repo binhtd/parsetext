@@ -592,6 +592,10 @@ foreach (glob("*.html") as $filename) {
                 $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
                 $discountPercent = normalizeNumber($discountPercent);
             }
+
+            if (!preg_match("/%/", $discountPercent)){
+                $discountPercent = "$" . $discountPercent;
+            }
         }
     }
 
