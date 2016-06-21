@@ -266,44 +266,77 @@ foreach (glob("*.html") as $filename) {
         $dailySupplyChargePrice = preg_replace("|[^\d,.]|", "", $dailySupplyChargePrice);
     }
 
-    $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Off peak - Controlled load 1.+?<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
+    $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Controlled load<\/b><\/p>.+?Controlled load.+?All usage<\/p>(.+?)<\/p>|i";
     preg_match_all($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ((count($out) > 2) && (isset($out[2][0]))) {
-        $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = $out[2][0];
+    if ((count($out) > 1) && (isset($out[1][0]))) {
+        $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = $out[1][0];
         $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice);
         $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice);
     }
 
 
-    $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Off peak - Controlled load 1.+?<\/b><\/p>(<p.+?>){5}(.+?)<p|i";
+    $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Controlled load<\/b><\/p>.+?Controlled load.+?Daily supply charge<\/p>(.+?)<\/p>|i";
     preg_match_all($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ((count($out) > 2) && (isset($out[2][0]))) {
-        $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = $out[2][0];
+    if ((count($out) > 1) && (isset($out[1][0]))) {
+        $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = $out[1][0];
         $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice);
         $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice);
     }
 
-    $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Off peak - Controlled load 2.+?<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
+    $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Controlled load<\/b><\/p>.+?Controlled load 2.+?All usage<\/p>(.+?)<\/p>|i";
     preg_match_all($offPeakControlledLoad2AllControlledLoad1ALLUSAGEPricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ((count($out) > 2) && (isset($out[2][0]))) {
-        $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice = $out[2][0];
+    if ((count($out) > 1) && (isset($out[1][0]))) {
+        $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice = $out[1][0];
         $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice);
         $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice);
     }
 
 
-    $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Off peak - Controlled load 2.+?<\/b><\/p>(<p.+?>){5}(.+?)<p|i";
+    $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Controlled load<\/b><\/p>.+?Controlled load 2.+?Daily supply charge<\/p>(.+?)<\/p>|i";
     preg_match_all($offPeakControlledLoad2AllControlledLoad1DailySupplyChargePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ((count($out) > 2) && (isset($out[2][0]))) {
-        $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice = $out[2][0];
+    if ((count($out) > 1) && (isset($out[1][0]))) {
+        $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice = $out[1][0];
         $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice);
         $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice);
     }
 
+
+    if (empty($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice)){
+        $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Controlled load<\/b><\/p><p.+?All usage<\/p>(.+?)<p|i";
+        preg_match_all($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out) > 1) && (isset($out[1][0]))) {
+            $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = $out[1][0];
+            $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice);
+            $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice);
+
+            if (preg_match("/Daily supply charge/i", $out[1][0])){
+                $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = "";
+            }
+        }
+    }
+
+
+    if (empty($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice)){
+        $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Controlled load<\/b><\/p><p.+?Daily supply charge<\/p>(.+?)<p|i";
+        preg_match_all($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out) > 1) && (isset($out[1][0]))) {
+            $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = $out[1][0];
+            $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice);
+            $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice);
+        }
+    }
+    
+    if ( ($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice == $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice) &&
+        ($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice == $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice)){
+        $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = "";
+        $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = "";
+    }
 
     $areThesePricesFixedPattern = "|body.+?>Are these prices fixed\?<\/p>(<p.+?>){1}(.+?)<p|i";
     preg_match_all($areThesePricesFixedPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
