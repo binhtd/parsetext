@@ -331,7 +331,7 @@ foreach (glob("*.html") as $filename) {
             $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice);
         }
     }
-    
+
     if ( ($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice == $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice) &&
         ($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice == $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice)){
         $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = "";
@@ -586,7 +586,7 @@ foreach (glob("*.html") as $filename) {
         $discountPercent = preg_replace("|</?.+?>|", "", $discountPercent);
 
         $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
-
+        $discountPercent = normalizeNumber($discountPercent);
         $discountPercentArray = split("%", $discountPercent);
         if (isset($discountPercentArray[0]) && preg_match("|^\d+[,.]*\d*$|", $discountPercentArray[0])) {
             $discountPercent = $discountPercentArray[0] . "%";
