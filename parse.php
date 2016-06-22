@@ -51,9 +51,9 @@ $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer
     "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "First Step",
     "Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
     "Off peak - Controlled load 1 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Off peak - Controlled load 2 All controlled load 1 ALL USAGE Price (exc. GST)",
-    "Off peak - Controlled load 2 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Conditional Discount", "Discount %", "Discount applicable to",
-    "Are these prices fixed?", "Eligibility Criteria", "Cheque Dishonour payment fee", "Direct debit dishonour payment fee", "Payment processing fee", "Disconnection fee",
-    "Reconnection fee", "Other fee", "Late payment fee", "Credit card payment processing fee", "Other fee", "Voluntary FiT"
+    "Off peak - Controlled load 2 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Frequency","Conditional Discount", "Discount %", "Discount applicable to", "Guaranteed discounts",
+    "Discount %", "Discount applicability","Are these prices fixed?", "Eligibility Criteria", "Exit fee 1 year" , "Exit fee 2 year","Cheque Dishonour payment fee","Contribution Fee", "Direct debit dishonour payment fee", "Payment processing fee", "Disconnection fee",
+    "Reconnection fee", "Contribution Fee", "Other fee", "Late payment fee", "Credit card payment processing fee", "Other fee", "Voluntary FiT"
 );
 
 if (file_exists(__DIR__ . "/parse_result.csv")) {
@@ -97,6 +97,7 @@ foreach (glob("*.html") as $filename) {
     $parts = explode("-", pathinfo($filename, PATHINFO_FILENAME));
     $postCode = $parts[count($parts) - 1];
     $pdfFileName = pathinfo($filename, PATHINFO_FILENAME) . ".pdf";
+    $frequency = $guaranteedDiscounts = $discountPercent2 = $discountApplicability2 = $exitFee1Year = $exitFee2Year = $contributionFee1 =  $contributionFee2 = "";
     $retailer = $offerName = $offerNo = $customerType = $fuelType = $distributor = $tariffType = $offerType = $releaseDate = "";
     $contractTerm = $contractExpiryDetails = $billFrequency = $allUsagePrice = $dailySupplyChargePrice = $firstUsagePrice = "";
     $secondUsagePrice = $thirdUsagePrice = $fourthUagePrice = $fifthUsagePrice = $balanceUsagePrice = $firstStep = $secondStep = "";
@@ -608,27 +609,46 @@ foreach (glob("*.html") as $filename) {
         }
     }
 
-    if (empty($discountPercent)){
-         $discountPercentPattern = "|body.+?<b>Guaranteed discounts<\/b><\/p>(.+?)<\/p>(.+?)<\/p|i";
-        preg_match_all($discountPercentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+    if (empty($guaranteedDiscounts)){
+        $guaranteedDiscountsPattern = "|body.+?<b>Guaranteed discounts<\/b><\/p>(.+?)<\/p>(.+?)<\/p|i";
+        preg_match_all($guaranteedDiscountsPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
         if ((count($out)>2) && isset($out[2][0])){
-            $discountPercent = $out[2][0];
-            $discountPercent = preg_replace("|</?.+?>|", "", $discountPercent);
-            $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
-
-            $discountPercent = normalizeNumber($discountPercent);
-
-            if (empty($discountPercent) && isset($out[1][0])){
-                $discountPercent = $out[1][0];
-                $discountPercent = preg_replace("|</?.+?>|", "", $discountPercent);
-                $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
-                $discountPercent = normalizeNumber($discountPercent);
+            if (isset($out[1][0])){
+                $guaranteedDiscounts = $out[1][0];
+                $guaranteedDiscounts = preg_replace("|</?.+?>|", "", $guaranteedDiscounts);
             }
 
-            if (!preg_match("/%/", $discountPercent)){
-                $discountPercent = "$" . $discountPercent;
+            $discountPercent2 = $out[2][0];
+            $discountPercent2  = preg_replace("|</?.+?>|", "", $discountPercent2);
+
+            if (preg_match("|Consumption charges|i", $out[2][0])){
+                $discountApplicability2 = "Consumption charges";
             }
+
+            preg_match_all("|-?\s?([$\d.,]+%?)\s*|i", $discountPercent2, $out1, PREG_PATTERN_ORDER);
+            if ((count($out1)>1) && isset($out1[1][0])){
+                $discountPercent2 = $out1[1][0];
+            }
+
+            $discountPercent2 = normalizeNumber($discountPercent2);
+
+            if (empty($discountPercent2)){
+                $discountPercent2 = $out[1][0];
+                $discountPercent2  = preg_replace("|</?.+?>|", "", $discountPercent2);
+
+                if (preg_match("|Consumption charges|i", $out[1][0])){
+                    $discountApplicability2 = "Consumption charges";
+                }
+
+                preg_match_all("|-?\s?([$\d.,]+%?)\s*|i", $discountPercent2, $out2, PREG_PATTERN_ORDER);
+                if ((count($out2)>1) && isset($out2[1][0])){
+                    $discountPercent2 = $out2[1][0];
+                }
+
+                $discountPercent2 = normalizeNumber($discountPercent2);
+            }
+
         }
     }
 
@@ -801,6 +821,11 @@ foreach (glob("*.html") as $filename) {
         $firstStep = $out[3][0];
         $firstStep = preg_replace("|</?.+?>|", "", $firstStep);
         $firstStep = preg_replace("|[^\d,.]|", "", $firstStep);
+
+        if (empty($frequency)){
+            $frequency = getFrequency($out[3][0]);
+        }
+
     }
 
     $firstStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?first(.+?)<\/p>|i";
@@ -815,6 +840,10 @@ foreach (glob("*.html") as $filename) {
         if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
             $firstStep = "";
         }
+
+        if (empty($frequency)) {
+            $frequency = getFrequency($out[1][0]);
+        }
     }
 
 
@@ -826,6 +855,9 @@ foreach (glob("*.html") as $filename) {
         $secondStep = preg_replace("|</?.+?>|", "", $secondStep);
         $secondStep = preg_replace("|[^\d,.]|", "", $secondStep);
         $secondStep = normalizeNumber($secondStep);
+        if (empty($frequency)) {
+            $frequency = getFrequency($out[3][0]);
+        }
     }
 
     $secondStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?next(.+?)<\/p>|i";
@@ -840,6 +872,9 @@ foreach (glob("*.html") as $filename) {
         if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
             $secondStep = "";
         }
+        if (empty($frequency)) {
+            $frequency = getFrequency($out[1][0]);
+        }
     }
 
     $thirdStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next.+?<\/p>.+?next(.+?)<\/p><p|i";
@@ -850,6 +885,9 @@ foreach (glob("*.html") as $filename) {
         $thirdStep = preg_replace("|</?.+?>|", "", $thirdStep);
         $thirdStep = preg_replace("|[^\d,.]|", "", $thirdStep);
         $thirdStep = normalizeNumber($thirdStep);
+        if (empty($frequency)) {
+            $frequency = getFrequency($out[3][0]);
+        }
     }
 
 
@@ -865,6 +903,10 @@ foreach (glob("*.html") as $filename) {
         if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
             $thirdStep = "";
         }
+
+        if (empty($frequency)) {
+            $frequency = getFrequency($out[1][0]);
+        }
     }
 
     $fourthStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next.+?<\/p>.+?next.+?<\/p>.+?next(.+?)<\/p><p|i";
@@ -875,6 +917,10 @@ foreach (glob("*.html") as $filename) {
         $fourthStep = preg_replace("|</?.+?>|", "", $fourthStep);
         $fourthStep = preg_replace("|[^\d,.]|", "", $fourthStep);
         $fourthStep = normalizeNumber($fourthStep);
+
+        if (empty($frequency)) {
+            $frequency = getFrequency($out[3][0]);
+        }
     }
 
     $fourthStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?next.+?next.+?next(.+?)<\/p>|i";
@@ -889,6 +935,10 @@ foreach (glob("*.html") as $filename) {
         if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
             $fourthStep = "";
         }
+
+        if (empty($frequency)) {
+            $frequency = getFrequency($out[1][0]);
+        }
     }
 
     $fifthStepPattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?next.+?<\/p>.+?next.+?<\/p>.+?next.+?<\/p>.+?next(.+?)<\/p><p|i";
@@ -899,6 +949,10 @@ foreach (glob("*.html") as $filename) {
         $fifthStep = preg_replace("|</?.+?>|", "", $fifthStep);
         $fifthStep = preg_replace("|[^\d,.]|", "", $fifthStep);
         $fifthStep = normalizeNumber($fifthStep);
+
+        if (empty($frequency)) {
+            $frequency = getFrequency($out[3][0]);
+        }
     }
 
     $fifthStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?next.+?next.+?next.+?next(.+?)<\/p>|i";
@@ -912,6 +966,10 @@ foreach (glob("*.html") as $filename) {
 
         if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
             $fifthStep = "";
+        }
+
+        if (empty($frequency)) {
+            $frequency = getFrequency($out[1][0]);
         }
     }
 
@@ -929,15 +987,84 @@ foreach (glob("*.html") as $filename) {
         }
     }
 
+    $exitFee1YearPattern = "|body.+?<b>Fees<\/b><\/p>.+?Exit Fee<\/p>(.+?)<\/p>|i";
+    preg_match_all($exitFee1YearPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $exitFee1Year = $out[1][0];
+        $exitFee1Year = preg_replace("|</?.+?>|", "", $exitFee1Year);
+        preg_match_all("|-?\s([$\d.,]+%?)\s*|i", $exitFee1Year, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $exitFee1Year = $out[1][0];
+        }
+
+        $exitFee1Year = normalizeNumber($exitFee1Year);
+
+        $exitFeeYearArray = explode("$", $exitFee1Year);
+        if (count($exitFeeYearArray)>2){
+            $exitFee1Year = "$" .$exitFeeYearArray[1];
+        }
+    }
+
+    $exitFee2YearPattern = "|body.+?<b>Fees<\/b><\/p>.+?Exit Fee<\/p>.+?Exit Fee<\/p>(.+?)<\/p>|i";
+    preg_match_all($exitFee2YearPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $exitFee2Year = $out[1][0];
+        $exitFee2Year = preg_replace("|</?.+?>|", "", $exitFee2Year);
+        preg_match_all("|-?\s([$\d.,]+%?)\s*|i", $exitFee2Year, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $exitFee2Year = $out[1][0];
+        }
+        $exitFee2Year = normalizeNumber($exitFee2Year);
+
+        $exitFeeYearArray = explode("$", $exitFee2Year);
+        if (count($exitFeeYearArray)>2){
+            $exitFee2Year = "$" .$exitFeeYearArray[1];
+        }
+    }
+
+    $contributionFee1Pattern = "|body.+?<b>Fees<\/b><\/p>.+?Contribution Fee<\/p>(.+?)<\/p>|i";
+    preg_match_all($contributionFee1Pattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $contributionFee1 = $out[1][0];
+        $contributionFee1 = preg_replace("|</?.+?>|", "", $contributionFee1);
+        preg_match_all("|-?\s?([$\d.,]+%?)\s*|i", $contributionFee1, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $contributionFee1 = $out[1][0];
+        }
+
+        $contributionFee1 = normalizeNumber($contributionFee1);
+    }
+
+    $contributionFee2Pattern = "|body.+?<b>Fees<\/b><\/p>.+?Membership fee<\/p>(.+?)<\/p>|i";
+    preg_match_all($contributionFee2Pattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $contributionFee2 = $out[1][0];
+        $contributionFee2 = preg_replace("|</?.+?>|", "", $contributionFee2);
+
+        preg_match_all("|-?\s?([$\d.,]+%?)\s*|i", $contributionFee2, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $contributionFee2 = $out[1][0];
+        }
+
+        $contributionFee2 = normalizeNumber($contributionFee2);
+    }
 
     $extractResultArray = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
         $contractTerm, $contractExpiryDetails, $billFrequency, $allUsagePrice, $dailySupplyChargePrice, $firstUsagePrice,
         $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $firstStep, $secondStep,
         $thirdStep, $fourthStep, $fifthStep, $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
-        $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice,
-        $conditionalDiscount, $discountPercent, $discountApplicableTo, $areThesePricesFixed, $eligibilityCriteria, $chequeDishonourPaymentFee,
-        $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $otherFee1, $latePaymentFee,
-        $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT
+        $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice, $frequency,
+        $conditionalDiscount, $discountPercent, $discountApplicableTo, $guaranteedDiscounts, $discountPercent2, $discountApplicability2, $areThesePricesFixed, $eligibilityCriteria,
+        $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1,$directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
+        $otherFee1, $latePaymentFee,$creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT
     );
 
     fputcsv($handle, $extractResultArray);
@@ -991,4 +1118,22 @@ function printListDuplicateFile($globalDuplicateFileNames)
         echo "File holds list duplicate files duplicate_files.txt\n";
         fclose($fp);
     }
+}
+
+function getFrequency($htmlContent){
+    $frequency = "";
+
+    if (preg_match("/(per day)/i", $htmlContent)){
+        $frequency = "per day";
+    }
+
+    if (preg_match("/(per month)/i", $htmlContent)){
+        $frequency = "per month";
+    }
+
+    if (preg_match("/(per quater)/i", $htmlContent)){
+        $frequency = "per quater";
+    }
+
+    return $frequency;
 }
