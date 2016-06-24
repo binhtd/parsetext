@@ -48,12 +48,13 @@ if (!is_dir(__DIR__ . "/pdf")) {
 
 $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
-    "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "First Step",
-    "Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
+    "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "Peak" , "Shoulder",
+    "Off Peak", "Peak - Summer", "Peak - Winter", "Peak - First usage Price", "Peak - Second Usage Price", "Peak - Third usage Price", "Peak - Fourth Usage Price",
+    "Peak - Fifth Usage Price", "Peak - Balance Price","First Step","Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
     "Off peak - Controlled load 1 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Off peak - Controlled load 2 All controlled load 1 ALL USAGE Price (exc. GST)",
     "Off peak - Controlled load 2 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Frequency","Conditional Discount", "Discount %", "Discount applicable to", "Guaranteed discounts",
     "Discount %", "Discount applicability","Are these prices fixed?", "Eligibility Criteria", "Exit fee 1 year" , "Exit fee 2 year","Cheque Dishonour payment fee","Contribution Fee", "Direct debit dishonour payment fee", "Payment processing fee", "Disconnection fee",
-    "Reconnection fee", "Contribution Fee", "Other fee", "Late payment fee", "Credit card payment processing fee", "Other fee", "Voluntary FiT"
+    "Reconnection fee", "Contribution Fee", "Other fee", "Late payment fee", "Credit card payment processing fee", "Other fee", "Voluntary FiT", "GreenPower option", "Incentives"
 );
 
 if (file_exists(__DIR__ . "/parse_result.csv")) {
@@ -104,7 +105,9 @@ foreach (glob("*.html") as $filename) {
     $thirdStep = $fourthStep = $fifthStep = $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = "";
     $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice = $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice = $conditionalDiscount = $discountPercent = $discountApplicableTo = "";
     $areThesePricesFixed = $eligibilityCriteria = $chequeDishonourPaymentFee = $directDebitDishonourPaymentFee = $paymentProcessingFee = $disconnectionFee = $reconnectionFee = $otherFee1 = $latePaymentFee = "";
-    $creditCardPaymentProcessingFee = $otherFee2 = $voluntaryFiT = "";
+    $creditCardPaymentProcessingFee = $otherFee2 = $voluntaryFiT = $greenPowerOption = $incentives = "";
+    $peak = $shoulder = $offPeak = $peakSummer = $peakWinter = $peakFirstUsagePrice = $peakSecondUsagePrice = $peakThirdUsagePrice = $peakFourthUsagePrice = $peakFifthUsagePrice = $peakBalancePrice = "";
+
 
     $htmlContent = str_replace("\n", "", $htmlContent);
     $htmlContent = str_replace("\r", "", $htmlContent);
@@ -1057,14 +1060,50 @@ foreach (glob("*.html") as $filename) {
         $contributionFee2 = normalizeNumber($contributionFee2);
     }
 
+
+    $greenPowerOptionPattern = "|body.+?<b>GreenPower(<br\/>option)?<\/b><\/p>(<p.+?){6}<\/p>(<p.+?<\/p)|i";
+    preg_match_all($greenPowerOptionPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 3) && (isset($out[3][0]))){
+        $greenPowerOption = $out[3][0];
+        $greenPowerOption = preg_replace("|</?.+?>|", "", $greenPowerOption);
+
+        preg_match_all("|\s?([\d.,]+%?).+?(kWh)?|i", $greenPowerOption, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $greenPowerOption = $out[1][0];
+        }
+
+        $greenPowerOption = preg_replace("/[^\d.,]/i", "", $greenPowerOption);
+        $greenPowerOption = normalizeNumber($greenPowerOption);
+    }
+
+
+    $incentivesPattern = "|body.+?<b>Incentives<\/b><\/p>(<p.+?)<\/p|i";
+    preg_match_all($incentivesPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $incentives = $out[1][0];
+        $incentives = preg_replace("|</?.+?>|", "", $incentives);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $incentives, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $incentives = $out[1][0];
+        }
+
+        $incentives = normalizeNumber($incentives);
+    }
+
     $extractResultArray = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
         $contractTerm, $contractExpiryDetails, $billFrequency, $allUsagePrice, $dailySupplyChargePrice, $firstUsagePrice,
-        $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $firstStep, $secondStep,
+        $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $peak, $shoulder, $offPeak, $peakSummer, $peakWinter, $peakFirstUsagePrice, $peakSecondUsagePrice, $peakThirdUsagePrice,
+        $peakFourthUsagePrice, $peakFifthUsagePrice, $peakBalancePrice, $firstStep, $secondStep,
         $thirdStep, $fourthStep, $fifthStep, $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
         $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice, $frequency,
         $conditionalDiscount, $discountPercent, $discountApplicableTo, $guaranteedDiscounts, $discountPercent2, $discountApplicability2, $areThesePricesFixed, $eligibilityCriteria,
         $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1,$directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
-        $otherFee1, $latePaymentFee,$creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT
+        $otherFee1, $latePaymentFee,$creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT, $greenPowerOption, $incentives,
     );
 
     fputcsv($handle, $extractResultArray);
