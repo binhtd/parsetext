@@ -1095,6 +1095,202 @@ foreach (glob("*.html") as $filename) {
         $incentives = normalizeNumber($incentives);
     }
 
+    $peakPattern = "|body.+?<b>Peak.+?all usage<\/p>(<p.+?<\/p)|i";
+    preg_match_all($peakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $peak = $out[1][0];
+        $peak = preg_replace("|</?.+?>|", "", $peak);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $peak, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $peak = $out[1][0];
+        }
+
+        $peak = normalizeNumber($peak);
+    }
+
+    $shoulderPattern = "|body.+?<b>Shoulder.+?all usage<\/p>(<p.+?<\/p)|i";
+    preg_match_all($shoulderPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $shoulder = $out[1][0];
+        $shoulder = preg_replace("|</?.+?>|", "", $shoulder);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $shoulder, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $shoulder = $out[1][0];
+        }
+
+        $shoulder = normalizeNumber($shoulder);
+    }
+
+    $offPeakPattern = "|body.+?<b>Off-peak.+?all usage<\/p>(<p.+?<\/p)|i";
+    preg_match_all($offPeakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $offPeak = $out[1][0];
+        $offPeak = preg_replace("|</?.+?>|", "", $offPeak);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $offPeak, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $offPeak = $out[1][0];
+        }
+
+        $offPeak = normalizeNumber($offPeak);
+    }
+
+    $peakWinterPattern = "|body.+?<b>Winter.+?all usage<\/p>(<p.+?<\/p)|i";
+    preg_match_all($peakWinterPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $peakWinter = $out[1][0];
+        $peakWinter = preg_replace("|</?.+?>|", "", $peakWinter);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $peakWinter, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $peakWinter = $out[1][0];
+        }
+
+        $peakWinter = normalizeNumber($peakWinter);
+    }
+
+    $peakSummerPattern = "|body.+?<b>Summer.+?all usage<\/p>(<p.+?<\/p)|i";
+    preg_match_all($peakSummerPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $peakSummer = $out[1][0];
+        $peakSummer = preg_replace("|</?.+?>|", "", $peakSummer);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $peakSummer, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out)>1) && isset($out[1][0])){
+            $peakSummer = $out[1][0];
+        }
+
+        $peakSummer = normalizeNumber($peakSummer);
+    }
+
+    $peakFirstUsagePricePattern = "|body.+?<b>Peak.+?first.+?<\/p>(<p.+?<\/p)|i";
+    preg_match_all($peakFirstUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $peakFirstUsagePrice = $out[1][0];
+        $peakFirstUsagePrice = preg_replace("|</?.+?>|", "", $peakFirstUsagePrice);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $peakFirstUsagePrice, $out1, PREG_PATTERN_ORDER);
+
+        if ((count($out1)>1) && isset($out1[1][0])){
+            $peakFirstUsagePrice = $out1[1][0];
+        }
+
+        $peakFirstUsagePrice = normalizeNumber($peakFirstUsagePrice);
+
+        if (preg_match("/Remaining usage per/i", $out[0][0])){
+            $peakFirstUsagePrice = "";
+        }
+    }
+
+    $peakSecondUsagePricePattern = "|body.+?<b>Peak.+?next.+?<\/p>(<p.+?<\/p)|i";
+    preg_match_all($peakSecondUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $peakSecondUsagePrice = $out[1][0];
+        $peakSecondUsagePrice = preg_replace("|</?.+?>|", "", $peakSecondUsagePrice);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $peakSecondUsagePrice, $out1, PREG_PATTERN_ORDER);
+
+        if ((count($out1)>1) && isset($out1[1][0])){
+            $peakSecondUsagePrice = $out1[1][0];
+        }
+
+        $peakSecondUsagePrice = normalizeNumber($peakSecondUsagePrice);
+
+        if (preg_match("/Remaining usage per/i", $out[0][0])){
+            $peakSecondUsagePrice = "";
+        }
+    }
+
+    $peakThirdUsagePricePattern = "|body.+?<b>Peak.+?next.+?next.+?<\/p>(<p.+?<\/p)|i";
+    preg_match_all($peakThirdUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $peakThirdUsagePrice = $out[1][0];
+        $peakThirdUsagePrice = preg_replace("|</?.+?>|", "", $peakThirdUsagePrice);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $peakThirdUsagePrice, $out1, PREG_PATTERN_ORDER);
+
+        if ((count($out1)>1) && isset($out1[1][0])){
+            $peakThirdUsagePrice = $out1[1][0];
+        }
+
+        $peakThirdUsagePrice = normalizeNumber($peakThirdUsagePrice);
+
+        if (preg_match("/Remaining usage per/i", $out[0][0])){
+            $peakThirdUsagePrice = "";
+        }
+    }
+
+    $peakFourthUsagePricePattern = "|body.+?<b>Peak.+?next.+?next.+?next.+?<\/p>(<p.+?<\/p)|i";
+    preg_match_all($peakFourthUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $peakFourthUsagePrice = $out[1][0];
+        $peakFourthUsagePrice = preg_replace("|</?.+?>|", "", $peakFourthUsagePrice);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $peakFourthUsagePrice, $out1, PREG_PATTERN_ORDER);
+
+        if ((count($out1)>1) && isset($out1[1][0])){
+            $peakFourthUsagePrice = $out1[1][0];
+        }
+
+        $peakFourthUsagePrice = normalizeNumber($peakFourthUsagePrice);
+
+        if (preg_match("/Remaining usage per/i", $out[0][0])){
+            $peakFourthUsagePrice = "";
+        }
+    }
+
+    $peakFifthUsagePricePattern = "|body.+?<b>Peak.+?next.+?next.+?next.+?next.+?<\/p>(<p.+?<\/p)|i";
+    preg_match_all($peakFifthUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $peakFifthUsagePrice = $out[1][0];
+        $peakFifthUsagePrice = preg_replace("|</?.+?>|", "", $peakFifthUsagePrice);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $peakFifthUsagePrice, $out1, PREG_PATTERN_ORDER);
+
+        if ((count($out1)>1) && isset($out1[1][0])){
+            $peakFifthUsagePrice = $out1[1][0];
+        }
+
+        $peakFifthUsagePrice = normalizeNumber($peakFifthUsagePrice);
+
+        if (preg_match("/Remaining usage per/i", $out[0][0])){
+            $peakFifthUsagePrice = "";
+        }
+    }
+
+    $peakBalancePricePattern = "|body.+?<b>Peak.+?Remaining usage pe.+?<\/p>(<p.+?<\/p)|i";
+    preg_match_all($peakBalancePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $peakBalancePrice = $out[1][0];
+        $peakBalancePrice = preg_replace("|</?.+?>|", "", $peakBalancePrice);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $peakBalancePrice, $out1, PREG_PATTERN_ORDER);
+
+        if ((count($out1)>1) && isset($out1[1][0])){
+            $peakBalancePrice = $out1[1][0];
+        }
+
+        $peakBalancePrice = normalizeNumber($peakBalancePrice);
+    }
+
     $extractResultArray = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
         $contractTerm, $contractExpiryDetails, $billFrequency, $allUsagePrice, $dailySupplyChargePrice, $firstUsagePrice,
         $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $peak, $shoulder, $offPeak, $peakSummer, $peakWinter, $peakFirstUsagePrice, $peakSecondUsagePrice, $peakThirdUsagePrice,
