@@ -1102,6 +1102,7 @@ foreach (glob("*.html") as $filename) {
                 $incentives = $out[1][0];
                 $incentives = preg_replace("|</?.+?>|", "", $incentives);
 
+                $incentives = preg_replace("/[\d.,]+\smonth/i", "", $incentives);
                 preg_match_all("|\s?([\d.,$]+)|i", $incentives, $out, PREG_PATTERN_ORDER);
 
                 if ((count($out) > 1) && isset($out[1][0])) {
