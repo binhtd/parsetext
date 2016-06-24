@@ -6,6 +6,9 @@ $fencingCharacter = "\n#########################################################
 $fuelTypes = array("E", "G");
 $postCodes = array(5000, 2000, 2576, 2340, 2614, 4000, 7000);
 $customeTypes = array("HOME-ELECTRICITY" => "R", "BUSINESS-ELECTRICITY" => "S");
+$tariffTypes = array("SingleRateOffer", "TimeOfUseOffer", "NotSure");
+$controlledLoadTypes = array(1, 0);
+
 $globalLinks = array();
 foreach ($fuelTypes as $fuel) {
     switch($fuel){
@@ -31,161 +34,167 @@ foreach ($fuelTypes as $fuel) {
         }
 
         foreach ($postCodes as $code) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
+            foreach($tariffTypes as $tariffType){
+                foreach($controlledLoadTypes as $controlledLoadType){
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
 
-            $postdata = array(
-                "customerType" => "$type",
-                "postcode" => $code,
-                "distributorId_E" => "",
-                "distributorId_G" => "",
-                "household_residents" => 1,
-                "electricity_usage[usage][0][start][date]" => "",
-                "electricity_usage[usage][0][end][date]" => "",
-                "electricity_usage[usage][0][peak]" => "",
-                "electricity_usage[usage][0][off_peak]" => "",
-                "electricity_usage[usage][0][shoulder_1]" => "",
-                "electricity_usage[usage][0][shoulder_2]" => "",
-                "electricity_usage[usage][0][controlled_load]" => "",
-                "gas_usage[usage][0][start][date]" => "",
-                "gas_usage[usage][0][end][date]" => "",
-                "gas_usage[usage][0][usage]" => "",
-                "terms_conditions" => 1,
-                "form_id" => "accc_offer_search_form",
-                "op" => "Show energy offers"
-            );
+                    $postdata = array(
+                        "customerType" => "$type",
+                        "postcode" => $code,
+                        "distributorId_E" => "",
+                        "distributorId_G" => "",
+                        "household_residents" => 1,
+                        "electricity_usage[usage][0][start][date]" => "",
+                        "electricity_usage[usage][0][end][date]" => "",
+                        "electricity_usage[usage][0][peak]" => "",
+                        "electricity_usage[usage][0][off_peak]" => "",
+                        "electricity_usage[usage][0][shoulder_1]" => "",
+                        "electricity_usage[usage][0][shoulder_2]" => "",
+                        "electricity_usage[usage][0][controlled_load]" => "",
+                        "gas_usage[usage][0][start][date]" => "",
+                        "gas_usage[usage][0][end][date]" => "",
+                        "gas_usage[usage][0][usage]" => "",
+                        "terms_conditions" => 1,
+                        "form_id" => "accc_offer_search_form",
+                        "op" => "Show energy offers"
+                    );
 
-            if ($fuel == "E") {
-                $postdata = array_merge($postdata, array(
-                    "fuelType" => "E",
-                    "tariff_type" => "NotSure",
-                    "controlled_load" => 1,
-                    "has_electricity_usage" => 0,
-                    "estimate_electricity_usage" => 0
-                ));
-            }
+                    if ($fuel == "E") {
+                        $postdata = array_merge($postdata, array(
+                            "fuelType" => "E",
+                            "tariff_type" => "$tariffType",
+                            "controlled_load" => $controlledLoadType,
+                            "has_electricity_usage" => 0,
+                            "estimate_electricity_usage" => 0
+                        ));
+                    }
 
-            if ($fuel == "G"){
-                $postdata = array_merge($postdata, array(
-                    "fuelType" => "G",
-                    "has_gas_usage"=>0
-                ));
-            }
+                    if ($fuel == "G"){
+                        $postdata = array_merge($postdata, array(
+                            "fuelType" => "G",
+                            "has_gas_usage"=>0
+                        ));
+                    }
 
-            if (($fuel == "G") && ($folderName == "BUSINESS-GAS")){
-                $postdata = array_merge($postdata, array(
-                    "estimate_electricity_usage" => 0,
-                ));
-            }
+                    if (($fuel == "G") && ($folderName == "BUSINESS-GAS")){
+                        $postdata = array_merge($postdata, array(
+                            "estimate_electricity_usage" => 0,
+                        ));
+                    }
 
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-            curl_setopt($ch, CURLOPT_COOKIESESSION, true);
-            curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/cookieFileName');
-            curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/cookieFileName');
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+                    curl_setopt($ch, CURLOPT_COOKIESESSION, true);
+                    curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/cookieFileName');
+                    curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/cookieFileName');
 
-            $timeStart = microtime(true);
-            $htmlContent = curl_exec($ch);
-            $timeEnd = microtime(true);
-            $time = number_format($timeEnd - $timeStart, 2);
-            echo $fencingCharacter;
-            echo "Consume $time s to processing form (postcode=$code, customertype=$type)";
-            echo $fencingCharacter;
-            $formID = getFormId($htmlContent);
+                    $timeStart = microtime(true);
+                    $htmlContent = curl_exec($ch);
+                    $timeEnd = microtime(true);
+                    $time = number_format($timeEnd - $timeStart, 2);
+                    echo $fencingCharacter;
+                    echo "Consume $time s to processing form (postcode=$code, customertype=$type)";
+                    echo $fencingCharacter;
+                    $formID = getFormId($htmlContent);
 
-            if (curl_error($ch)) {
-                echo curl_error($ch);
-            }
+                    if (curl_error($ch)) {
+                        echo curl_error($ch);
+                    }
 
-            //in some case when we change per page 100 we will get error so we will try to parse link before we switch per page 100
-            $linkArray = ($fuel == "E" ? getElectricityLinks($htmlContent) : getGasLinks($htmlContent));
-            downloadFile($linkArray, ($fuel == "E" ?  "electricity": "gas"), $folderName . "/" . $code . "/", $code);
-
-
-            //get data for electronic tab with per_page 100
-            $postdata = array(
-                "controlled_load" => 1,
-                "green_power" => 0,
-                "per_page" => 100,
-                "op" => 1,
-                "form_build_id" => $formID,
-                "form_id" => "accc_offer_search_form"
-            );
-
-            if ($fuel == "E") {
-                $postdata = array_merge($postdata, array("current_tab" => "E"));
-            }
-
-            if ($fuel == "G"){
-                $postdata = array_merge($postdata, array("current_tab" => "G"));
-            }
-
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-            $timeStart = microtime(true);
-            $htmlContent = curl_exec($ch);
+                    //in some case when we change per page 100 we will get error so we will try to parse link before we switch per page 100
+                    $linkArray = ($fuel == "E" ? getElectricityLinks($htmlContent) : getGasLinks($htmlContent));
+                    downloadFile($linkArray, ($fuel == "E" ?  "electricity": "gas"), $folderName . "/" . $code . "/", $code);
 
 
-            if (curl_error($ch)) {
-                echo curl_error($ch);
-            }
+                    //get data for electronic tab with per_page 100
+                    $postdata = array(
+                        "controlled_load" => 1,
+                        "green_power" => 0,
+                        "per_page" => 100,
+                        "op" => 1,
+                        "form_build_id" => $formID,
+                        "form_id" => "accc_offer_search_form"
+                    );
 
-            if ($fuel == "E") {
-                $linkArray = getElectricityLinks($htmlContent);
-                downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/", $code);
-            }
+                    if ($fuel == "E") {
+                        $postdata["controlled_load"] = $controlledLoadType;
+                        $postdata = array_merge($postdata, array("current_tab" => "E"));
+                    }
 
-            if ($fuel == "G"){
-                $linkArray = getGasLinks($htmlContent);
-                downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/", $code);
-            }
+                    if ($fuel == "G"){
+                        $postdata = array_merge($postdata, array("current_tab" => "G"));
+                    }
 
-            $htmlContent = str_replace("\n", "", $htmlContent);
-            $htmlContent = str_replace("\r", "", $htmlContent);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+                    $timeStart = microtime(true);
+                    $htmlContent = curl_exec($ch);
 
-            //in case there are more than 100 records we need to loop until we didn't see next button
-            while (preg_match('|class=\"fuel-type-pager.+?\".+?id=\"edit-pager-next\"|i', $htmlContent)) {
-                $formID = getFormId($htmlContent);
-                $postdata = array(
-                    "controlled_load" => 1,
-                    "green_power" => 0,
-                    "per_page" => 100,
-                    "op" => "next",
-                    "form_build_id" => $formID,
-                    "form_id" => "accc_offer_search_form"
-                );
 
-                if ($fuel == "E") {
-                    $postdata = array_merge($postdata, array("current_tab" => "E"));
+                    if (curl_error($ch)) {
+                        echo curl_error($ch);
+                    }
+
+                    if ($fuel == "E") {
+                        $linkArray = getElectricityLinks($htmlContent);
+                        downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/", $code);
+                    }
+
+                    if ($fuel == "G"){
+                        $linkArray = getGasLinks($htmlContent);
+                        downloadFile($linkArray, ($fuel == "E" ? "electricity" : "gas"), $folderName . "/" . $code . "/", $code);
+                    }
+
+                    $htmlContent = str_replace("\n", "", $htmlContent);
+                    $htmlContent = str_replace("\r", "", $htmlContent);
+
+                    //in case there are more than 100 records we need to loop until we didn't see next button
+                    while (preg_match('|class=\"fuel-type-pager.+?\".+?id=\"edit-pager-next\"|i', $htmlContent)) {
+                        $formID = getFormId($htmlContent);
+                        $postdata = array(
+                            "controlled_load" => 1,
+                            "green_power" => 0,
+                            "per_page" => 100,
+                            "op" => "next",
+                            "form_build_id" => $formID,
+                            "form_id" => "accc_offer_search_form"
+                        );
+
+                        if ($fuel == "E") {
+                            $postdata["controlled_load"] = $controlledLoadType;
+                            $postdata = array_merge($postdata, array("current_tab" => "E"));
+                        }
+
+                        if ($fuel == "G"){
+                            $postdata = array_merge($postdata, array("current_tab" => "G"));
+                        }
+
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+                        $htmlContent = curl_exec($ch);
+
+                        if (curl_error($ch)) {
+                            echo curl_error($ch);
+                        }
+
+                        if ($fuel == "E"){
+                            $electricityLinkArray = getElectricityLinks($htmlContent);
+                            downloadFile($electricityLinkArray, "electricity", $folderName . "/" . $code . "/", $code);
+                        }
+
+                        if ($fuel == "G"){
+                            $gasLinkArray = getGasLinks($htmlContent);
+                            downloadFile($gasLinkArray, "gas", $folderName . "/" . $code . "/", $code);
+                        }
+                    }
+
+                    $timeEnd = microtime(true);
+                    $time = number_format($timeEnd - $timeStart, 2);
+                    echo $fencingCharacter;
+                    echo "Consume $time s to processing " . ($fuel == "E" ?  "electricity": "gas") . " data";
+                    echo $fencingCharacter;
+                    curl_close($ch);
                 }
-
-                if ($fuel == "G"){
-                    $postdata = array_merge($postdata, array("current_tab" => "G"));
-                }
-
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-                $htmlContent = curl_exec($ch);
-
-                if (curl_error($ch)) {
-                    echo curl_error($ch);
-                }
-
-                 if ($fuel == "E"){
-                     $electricityLinkArray = getElectricityLinks($htmlContent);
-                     downloadFile($electricityLinkArray, "electricity", $folderName . "/" . $code . "/", $code);
-                 }
-
-                if ($fuel == "G"){
-                    $gasLinkArray = getGasLinks($htmlContent);
-                    downloadFile($gasLinkArray, "gas", $folderName . "/" . $code . "/", $code);
-                }
             }
-
-            $timeEnd = microtime(true);
-            $time = number_format($timeEnd - $timeStart, 2);
-            echo $fencingCharacter;
-            echo "Consume $time s to processing " . ($fuel == "E" ?  "electricity": "gas") . " data";
-            echo $fencingCharacter;
-            curl_close($ch);
         }
     }
 }
