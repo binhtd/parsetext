@@ -50,7 +50,7 @@ $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
     "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "Peak" , "Shoulder",
     "Off Peak", "Peak - Summer", "Peak - Winter", "Peak - First usage Price", "Peak - Second Usage Price", "Peak - Third usage Price", "Peak - Fourth Usage Price",
-    "Peak - Fifth Usage Price", "Peak - Balance Price","First Step","Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
+    "Peak - Fifth Usage Price", "Peak - Balance Price", "Summer Monthly Demand","Winter Monthly Demand", "Additional Monthly Demand","First Step","Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
     "Off peak - Controlled load 1 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Off peak - Controlled load 2 All controlled load 1 ALL USAGE Price (exc. GST)",
     "Off peak - Controlled load 2 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Frequency","Conditional Discount", "Discount %", "Discount applicable to", "Guaranteed discounts",
     "Discount %", "Discount applicability","Are these prices fixed?", "Eligibility Criteria", "Exit fee 1 year" , "Exit fee 2 year","Cheque Dishonour payment fee","Contribution Fee", "Direct debit dishonour payment fee", "Payment processing fee", "Disconnection fee",
@@ -107,6 +107,7 @@ foreach (glob("*.html") as $filename) {
     $areThesePricesFixed = $eligibilityCriteria = $chequeDishonourPaymentFee = $directDebitDishonourPaymentFee = $paymentProcessingFee = $disconnectionFee = $reconnectionFee = $otherFee1 = $latePaymentFee = "";
     $creditCardPaymentProcessingFee = $otherFee2 = $voluntaryFiT = $greenPowerOption = $incentives = "";
     $peak = $shoulder = $offPeak = $peakSummer = $peakWinter = $peakFirstUsagePrice = $peakSecondUsagePrice = $peakThirdUsagePrice = $peakFourthUsagePrice = $peakFifthUsagePrice = $peakBalancePrice = "";
+    $summerMonthlyDemand = $winterMonthlyDemand = $additionalMonthlyDemand = "";
 
 
     $htmlContent = str_replace("\n", "", $htmlContent);
@@ -1343,11 +1344,59 @@ foreach (glob("*.html") as $filename) {
 
         $peakBalancePrice = normalizeNumber($peakBalancePrice);
     }
+    
+    $summerMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Summer Monthly Demand.+?<\/p>(<p.+?<\/p)|i";
+    preg_match_all($summerMonthlyDemandPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $summerMonthlyDemand = $out[1][0];
+        $summerMonthlyDemand = preg_replace("|</?.+?>|", "", $summerMonthlyDemand);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $summerMonthlyDemand, $out1, PREG_PATTERN_ORDER);
+
+        if ((count($out1)>1) && isset($out1[1][0])){
+            $summerMonthlyDemand = $out1[1][0];
+        }
+
+        $summerMonthlyDemand = normalizeNumber($summerMonthlyDemand);
+    }
+
+    $winterMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Winter Monthly Demand.+?<\/p>(<p.+?<\/p)|i";
+    preg_match_all($winterMonthlyDemandPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $winterMonthlyDemand = $out[1][0];
+        $winterMonthlyDemand = preg_replace("|</?.+?>|", "", $winterMonthlyDemand);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $winterMonthlyDemand, $out1, PREG_PATTERN_ORDER);
+
+        if ((count($out1)>1) && isset($out1[1][0])){
+            $winterMonthlyDemand = $out1[1][0];
+        }
+
+        $winterMonthlyDemand = normalizeNumber($winterMonthlyDemand);
+    }
+
+    $winterMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Additional Monthly Demand.+?<\/p>(<p.+?<\/p)|i";
+    preg_match_all($winterMonthlyDemandPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ( (count($out)> 1) && (isset($out[1][0]))){
+        $additionalMonthlyDemand = $out[1][0];
+        $additionalMonthlyDemand = preg_replace("|</?.+?>|", "", $additionalMonthlyDemand);
+
+        preg_match_all("|\s?([\d.,$]+)|i", $additionalMonthlyDemand, $out1, PREG_PATTERN_ORDER);
+
+        if ((count($out1)>1) && isset($out1[1][0])){
+            $additionalMonthlyDemand = $out1[1][0];
+        }
+
+        $additionalMonthlyDemand = normalizeNumber($additionalMonthlyDemand);
+    }
 
     $extractResultArray = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
         $contractTerm, $contractExpiryDetails, $billFrequency, $allUsagePrice, $dailySupplyChargePrice, $firstUsagePrice,
         $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $peak, $shoulder, $offPeak, $peakSummer, $peakWinter, $peakFirstUsagePrice, $peakSecondUsagePrice, $peakThirdUsagePrice,
-        $peakFourthUsagePrice, $peakFifthUsagePrice, $peakBalancePrice, $firstStep, $secondStep,
+        $peakFourthUsagePrice, $peakFifthUsagePrice, $peakBalancePrice, $summerMonthlyDemand , $winterMonthlyDemand , $additionalMonthlyDemand , $firstStep, $secondStep,
         $thirdStep, $fourthStep, $fifthStep, $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
         $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice, $frequency,
         $conditionalDiscount, $discountPercent, $discountApplicableTo, $guaranteedDiscounts, $discountPercent2, $discountApplicability2, $areThesePricesFixed, $eligibilityCriteria,
