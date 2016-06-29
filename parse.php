@@ -48,12 +48,12 @@ echo "##########################################################################
 
 $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
-    "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "Peak" , "Shoulder",
+    "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "Peak", "Shoulder",
     "Off Peak", "Peak - Summer", "Peak - Winter", "Peak - First usage Price", "Peak - Second Usage Price", "Peak - Third usage Price", "Peak - Fourth Usage Price",
-    "Peak - Fifth Usage Price", "Peak - Balance Price", "Summer Monthly Demand","Winter Monthly Demand", "Additional Monthly Demand","First Step","Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
+    "Peak - Fifth Usage Price", "Peak - Balance Price", "Summer Monthly Demand", "Winter Monthly Demand", "Additional Monthly Demand", "First Step", "Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
     "Off peak - Controlled load 1 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Off peak - Controlled load 2 All controlled load 1 ALL USAGE Price (exc. GST)",
-    "Off peak - Controlled load 2 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Frequency","Conditional Discount", "Discount %", "Discount applicable to", "Guaranteed discounts",
-    "Discount %", "Discount applicability","Are these prices fixed?", "Eligibility Criteria", "Exit fee 1 year" , "Exit fee 2 year","Cheque Dishonour payment fee","Contribution Fee", "Direct debit dishonour payment fee", "Payment processing fee", "Disconnection fee",
+    "Off peak - Controlled load 2 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Frequency", "Conditional Discount", "Discount %", "Discount applicable to", "Guaranteed discounts",
+    "Discount %", "Discount applicability", "Are these prices fixed?", "Eligibility Criteria", "Exit fee 1 year", "Exit fee 2 year", "Cheque Dishonour payment fee", "Contribution Fee", "Direct debit dishonour payment fee", "Payment processing fee", "Disconnection fee",
     "Reconnection fee", "Contribution Fee", "Other fee", "Late payment fee", "Credit card payment processing fee", "Other fee", "Voluntary FiT", "GreenPower option", "Incentives"
 );
 
@@ -98,7 +98,7 @@ foreach (glob("*.html") as $filename) {
     $parts = explode("-", pathinfo($filename, PATHINFO_FILENAME));
     $postCode = $parts[count($parts) - 1];
     $pdfFileName = pathinfo($filename, PATHINFO_FILENAME) . ".pdf";
-    $frequency = $guaranteedDiscounts = $discountPercent2 = $discountApplicability2 = $exitFee1Year = $exitFee2Year = $contributionFee1 =  $contributionFee2 = "";
+    $frequency = $guaranteedDiscounts = $discountPercent2 = $discountApplicability2 = $exitFee1Year = $exitFee2Year = $contributionFee1 = $contributionFee2 = "";
     $retailer = $offerName = $offerNo = $customerType = $fuelType = $distributor = $tariffType = $offerType = $releaseDate = "";
     $contractTerm = $contractExpiryDetails = $billFrequency = $allUsagePrice = $dailySupplyChargePrice = $firstUsagePrice = "";
     $secondUsagePrice = $thirdUsagePrice = $fourthUagePrice = $fifthUsagePrice = $balanceUsagePrice = $firstStep = $secondStep = "";
@@ -230,7 +230,7 @@ foreach (glob("*.html") as $filename) {
     $allUsagePricePattern = "|body.+?<b>Electricity pricing information<\/b><\/p>(<p.+?>){5}(.+?)<p|i";
     preg_match_all($allUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( empty($allUsagePrice) && (count($out) > 2) && (isset($out[2][0]))) {
+    if (empty($allUsagePrice) && (count($out) > 2) && (isset($out[2][0]))) {
         $allUsagePrice = $out[2][0];
         $allUsagePrice = preg_replace("|</?.+?>|", "", $allUsagePrice);
         $allUsagePrice = preg_replace("|[^\d,.]|", "", $allUsagePrice);
@@ -243,12 +243,12 @@ foreach (glob("*.html") as $filename) {
     $allUsagePricePattern = "|body.+?<b>Electricity pricing information<\/b><\/p>(<p.+?all usage.+?>)(.+?)<p|i";
     preg_match_all($allUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( empty($allUsagePrice) && (count($out) > 2) && (isset($out[2][0]))) {
+    if (empty($allUsagePrice) && (count($out) > 2) && (isset($out[2][0]))) {
         $allUsagePrice = $out[2][0];
         $allUsagePrice = preg_replace("|</?.+?>|", "", $allUsagePrice);
         $allUsagePrice = preg_replace("|[^\d,.]|", "", $allUsagePrice);
 
-        if ( preg_match("/Daily supply charge/i", $out[0][0])) {
+        if (preg_match("/Daily supply charge/i", $out[0][0])) {
             $allUsagePrice = "";
         }
     }
@@ -310,7 +310,7 @@ foreach (glob("*.html") as $filename) {
     }
 
 
-    if (empty($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice)){
+    if (empty($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice)) {
         $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern = "|body.+?<b>Controlled load<\/b><\/p><p.+?All usage<\/p>(.+?)<p|i";
         preg_match_all($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
@@ -319,14 +319,14 @@ foreach (glob("*.html") as $filename) {
             $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = preg_replace("|</?.+?>|", "", $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice);
             $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = preg_replace("|[^\d,.]|", "", $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice);
 
-            if (preg_match("/Daily supply charge/i", $out[1][0])){
+            if (preg_match("/Daily supply charge/i", $out[1][0])) {
                 $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = "";
             }
         }
     }
 
 
-    if (empty($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice)){
+    if (empty($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice)) {
         $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern = "|body.+?<b>Controlled load<\/b><\/p><p.+?Daily supply charge<\/p>(.+?)<p|i";
         preg_match_all($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
@@ -337,8 +337,9 @@ foreach (glob("*.html") as $filename) {
         }
     }
 
-    if ( ($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice == $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice) &&
-        ($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice == $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice)){
+    if (($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice == $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice) &&
+        ($offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice == $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice)
+    ) {
         $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice = "";
         $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice = "";
     }
@@ -613,40 +614,40 @@ foreach (glob("*.html") as $filename) {
         }
     }
 
-    if (empty($guaranteedDiscounts)){
+    if (empty($guaranteedDiscounts)) {
         $guaranteedDiscountsPattern = "|body.+?<b>Guaranteed discounts<\/b><\/p>(.+?)<\/p>(.+?)<\/p|i";
         preg_match_all($guaranteedDiscountsPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-        if ((count($out)>2) && isset($out[2][0])){
-            if (isset($out[1][0])){
+        if ((count($out) > 2) && isset($out[2][0])) {
+            if (isset($out[1][0])) {
                 $guaranteedDiscounts = $out[1][0];
                 $guaranteedDiscounts = preg_replace("|</?.+?>|", "", $guaranteedDiscounts);
             }
 
             $discountPercent2 = $out[2][0];
-            $discountPercent2  = preg_replace("|</?.+?>|", "", $discountPercent2);
+            $discountPercent2 = preg_replace("|</?.+?>|", "", $discountPercent2);
 
-            if (preg_match("|Consumption charges|i", $out[2][0])){
+            if (preg_match("|Consumption charges|i", $out[2][0])) {
                 $discountApplicability2 = "Consumption charges";
             }
 
             preg_match_all("|-?\s?([$\d.,]+%?)\s*|i", $discountPercent2, $out1, PREG_PATTERN_ORDER);
-            if ((count($out1)>1) && isset($out1[1][0])){
+            if ((count($out1) > 1) && isset($out1[1][0])) {
                 $discountPercent2 = $out1[1][0];
             }
 
             $discountPercent2 = normalizeNumber($discountPercent2);
 
-            if (empty($discountPercent2)){
+            if (empty($discountPercent2)) {
                 $discountPercent2 = $out[1][0];
-                $discountPercent2  = preg_replace("|</?.+?>|", "", $discountPercent2);
+                $discountPercent2 = preg_replace("|</?.+?>|", "", $discountPercent2);
 
-                if (preg_match("|Consumption charges|i", $out[1][0])){
+                if (preg_match("|Consumption charges|i", $out[1][0])) {
                     $discountApplicability2 = "Consumption charges";
                 }
 
                 preg_match_all("|-?\s?([$\d.,]+%?)\s*|i", $discountPercent2, $out2, PREG_PATTERN_ORDER);
-                if ((count($out2)>1) && isset($out2[1][0])){
+                if ((count($out2) > 1) && isset($out2[1][0])) {
                     $discountPercent2 = $out2[1][0];
                 }
 
@@ -826,7 +827,7 @@ foreach (glob("*.html") as $filename) {
         $firstStep = preg_replace("|</?.+?>|", "", $firstStep);
         $firstStep = preg_replace("|[^\d,.]|", "", $firstStep);
 
-        if (empty($frequency)){
+        if (empty($frequency)) {
             $frequency = getFrequency($out[3][0]);
         }
 
@@ -836,7 +837,7 @@ foreach (glob("*.html") as $filename) {
     preg_match_all($firstStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
 
-    if ( empty($firstStep) && (count($out) > 1) && (isset($out[1][0]))) {
+    if (empty($firstStep) && (count($out) > 1) && (isset($out[1][0]))) {
         $firstStep = $out[1][0];
         $firstStep = preg_replace("|</?.+?>|", "", $firstStep);
         $firstStep = preg_replace("|[^\d,.]|", "", $firstStep);
@@ -867,7 +868,7 @@ foreach (glob("*.html") as $filename) {
     $secondStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?next(.+?)<\/p>|i";
     preg_match_all($secondStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( empty($secondStep) && (count($out) > 1) && (isset($out[1][0]))) {
+    if (empty($secondStep) && (count($out) > 1) && (isset($out[1][0]))) {
         $secondStep = $out[1][0];
         $secondStep = preg_replace("|</?.+?>|", "", $secondStep);
         $secondStep = preg_replace("|[^\d,.]|", "", $secondStep);
@@ -962,7 +963,7 @@ foreach (glob("*.html") as $filename) {
     $fifthStepPattern = "|body.+?<b>Electricity pricing information<\/b>.+?next.+?next.+?next.+?next(.+?)<\/p>|i";
     preg_match_all($fifthStepPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( empty($fifthStep) && (count($out) > 1) && (isset($out[1][0]))) {
+    if (empty($fifthStep) && (count($out) > 1) && (isset($out[1][0]))) {
         $fifthStep = $out[1][0];
         $fifthStep = preg_replace("|</?.+?>|", "", $fifthStep);
         $fifthStep = preg_replace("|[^\d,.]|", "", $fifthStep);
@@ -994,51 +995,51 @@ foreach (glob("*.html") as $filename) {
     $exitFee1YearPattern = "|body.+?<b>Fees<\/b><\/p>.+?Exit Fee<\/p>(.+?)<\/p>|i";
     preg_match_all($exitFee1YearPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $exitFee1Year = $out[1][0];
         $exitFee1Year = preg_replace("|</?.+?>|", "", $exitFee1Year);
         preg_match_all("|-?\s([$\d.,]+%?)\s*|i", $exitFee1Year, $out, PREG_PATTERN_ORDER);
 
-        if ((count($out)>1) && isset($out[1][0])){
+        if ((count($out) > 1) && isset($out[1][0])) {
             $exitFee1Year = $out[1][0];
         }
 
         $exitFee1Year = normalizeNumber($exitFee1Year);
 
         $exitFeeYearArray = explode("$", $exitFee1Year);
-        if (count($exitFeeYearArray)>2){
-            $exitFee1Year = "$" .$exitFeeYearArray[1];
+        if (count($exitFeeYearArray) > 2) {
+            $exitFee1Year = "$" . $exitFeeYearArray[1];
         }
     }
 
     $exitFee2YearPattern = "|body.+?<b>Fees<\/b><\/p>.+?Exit Fee<\/p>.+?Exit Fee<\/p>(.+?)<\/p>|i";
     preg_match_all($exitFee2YearPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $exitFee2Year = $out[1][0];
         $exitFee2Year = preg_replace("|</?.+?>|", "", $exitFee2Year);
         preg_match_all("|-?\s([$\d.,]+%?)\s*|i", $exitFee2Year, $out, PREG_PATTERN_ORDER);
 
-        if ((count($out)>1) && isset($out[1][0])){
+        if ((count($out) > 1) && isset($out[1][0])) {
             $exitFee2Year = $out[1][0];
         }
         $exitFee2Year = normalizeNumber($exitFee2Year);
 
         $exitFeeYearArray = explode("$", $exitFee2Year);
-        if (count($exitFeeYearArray)>2){
-            $exitFee2Year = "$" .$exitFeeYearArray[1];
+        if (count($exitFeeYearArray) > 2) {
+            $exitFee2Year = "$" . $exitFeeYearArray[1];
         }
     }
 
     $contributionFee1Pattern = "|body.+?<b>Fees<\/b><\/p>.+?Contribution Fee<\/p>(.+?)<\/p>|i";
     preg_match_all($contributionFee1Pattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $contributionFee1 = $out[1][0];
         $contributionFee1 = preg_replace("|</?.+?>|", "", $contributionFee1);
         preg_match_all("|-?\s?([$\d.,]+%?)\s*|i", $contributionFee1, $out, PREG_PATTERN_ORDER);
 
-        if ((count($out)>1) && isset($out[1][0])){
+        if ((count($out) > 1) && isset($out[1][0])) {
             $contributionFee1 = $out[1][0];
         }
 
@@ -1048,13 +1049,13 @@ foreach (glob("*.html") as $filename) {
     $contributionFee2Pattern = "|body.+?<b>Fees<\/b><\/p>.+?Membership fee<\/p>(.+?)<\/p>|i";
     preg_match_all($contributionFee2Pattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $contributionFee2 = $out[1][0];
         $contributionFee2 = preg_replace("|</?.+?>|", "", $contributionFee2);
 
         preg_match_all("|-?\s?([$\d.,]+%?)\s*|i", $contributionFee2, $out, PREG_PATTERN_ORDER);
 
-        if ((count($out)>1) && isset($out[1][0])){
+        if ((count($out) > 1) && isset($out[1][0])) {
             $contributionFee2 = $out[1][0];
         }
 
@@ -1065,13 +1066,13 @@ foreach (glob("*.html") as $filename) {
     $greenPowerOptionPattern = "|body.+?<b>GreenPower(<br\/>option)?<\/b><\/p>(<p.+?){6}<\/p>(<p.+?<\/p)|i";
     preg_match_all($greenPowerOptionPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 3) && (isset($out[3][0]))){
+    if ((count($out) > 3) && (isset($out[3][0]))) {
         $greenPowerOption = $out[3][0];
         $greenPowerOption = preg_replace("|</?.+?>|", "", $greenPowerOption);
 
         preg_match_all("|\s?([\d.,]+%?).+?(kWh)?|i", $greenPowerOption, $out, PREG_PATTERN_ORDER);
 
-        if ((count($out)>1) && isset($out[1][0])){
+        if ((count($out) > 1) && isset($out[1][0])) {
             $greenPowerOption = $out[1][0];
         }
 
@@ -1083,23 +1084,23 @@ foreach (glob("*.html") as $filename) {
     $incentivesPattern = "|body.+?<b>Incentives<\/b><\/p>(<p.+?)<\/p|i";
     preg_match_all($incentivesPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $incentives = $out[1][0];
         $incentives = preg_replace("|</?.+?>|", "", $incentives);
 
         preg_match_all("|\s?([\d.,$]+)|i", $incentives, $out, PREG_PATTERN_ORDER);
 
-        if ((count($out)>1) && isset($out[1][0])){
+        if ((count($out) > 1) && isset($out[1][0])) {
             $incentives = $out[1][0];
         }
 
         $incentives = normalizeNumber($incentives);
 
-        if (!preg_match("/[\d,.$%]+/i", $incentives)){
+        if (!preg_match("/[\d,.$%]+/i", $incentives)) {
             $incentivesPattern = "|body.+?<b>Incentives<\/b><\/p>(<p.+?){2}<\/p|i";
             preg_match_all($incentivesPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-            if ( (count($out)> 1) && (isset($out[1][0]))) {
+            if ((count($out) > 1) && (isset($out[1][0]))) {
                 $incentives = $out[1][0];
                 $incentives = preg_replace("|</?.+?>|", "", $incentives);
 
@@ -1108,7 +1109,7 @@ foreach (glob("*.html") as $filename) {
 
                 if ((count($out) > 1) && isset($out[1][0])) {
                     $incentives = $out[1][0];
-                }else{
+                } else {
                     $incentives = "";
                 }
 
@@ -1120,21 +1121,21 @@ foreach (glob("*.html") as $filename) {
     $peakPattern = "|body.+?<b>Peak.+?all usage<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $peak = $out[1][0];
         $peak = preg_replace("|</?.+?>|", "", $peak);
 
         preg_match_all("|\s?([\d.,$]+)|i", $peak, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $peak = $out1[1][0];
-        }else{
+        } else {
             $peak = "";
         }
 
         $peak = normalizeNumber($peak);
 
-        if (isset($out[0][0]) && preg_match("/Remaining usage per/i", $out[0][0])){
+        if (isset($out[0][0]) && preg_match("/Remaining usage per/i", $out[0][0])) {
             $peak = "";
         }
     }
@@ -1142,15 +1143,15 @@ foreach (glob("*.html") as $filename) {
     $shoulderPattern = "|body.+?<b>Shoulder.+?all usage<\/p>(<p.+?<\/p)|i";
     preg_match_all($shoulderPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $shoulder = $out[1][0];
         $shoulder = preg_replace("|</?.+?>|", "", $shoulder);
 
         preg_match_all("|\s?([\d.,$]+)|i", $shoulder, $out, PREG_PATTERN_ORDER);
 
-        if ((count($out)>1) && isset($out[1][0])){
+        if ((count($out) > 1) && isset($out[1][0])) {
             $shoulder = $out[1][0];
-        }else{
+        } else {
             $shoulder = "";
         }
 
@@ -1160,15 +1161,15 @@ foreach (glob("*.html") as $filename) {
     $offPeakPattern = "|body.+?<b>Off[-\s]?peak (all)?.+?all usage<\/p>(<p.+?<\/p)|i";
     preg_match_all($offPeakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 2) && (isset($out[2][0]))){
+    if ((count($out) > 2) && (isset($out[2][0]))) {
         $offPeak = $out[2][0];
         $offPeak = preg_replace("|</?.+?>|", "", $offPeak);
 
         preg_match_all("|\s?([\d.,$]+)|i", $offPeak, $out, PREG_PATTERN_ORDER);
 
-        if ((count($out)>1) && isset($out[1][0])){
+        if ((count($out) > 1) && isset($out[1][0])) {
             $offPeak = $out[1][0];
-        }else{
+        } else {
             $offPeak = "";
         }
 
@@ -1178,21 +1179,21 @@ foreach (glob("*.html") as $filename) {
     $peakWinterPattern = "|body.+?<b>Winter.+?all usage<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakWinterPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $peakWinter = $out[1][0];
         $peakWinter = preg_replace("|</?.+?>|", "", $peakWinter);
 
         preg_match_all("|\s?([\d.,$]+)|i", $peakWinter, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $peakWinter = $out1[1][0];
-        }else{
+        } else {
             $peakWinter = "";
         }
 
         $peakWinter = normalizeNumber($peakWinter);
 
-        if (preg_match("/Remaining usage per/i", $out[0][0])){
+        if (preg_match("/Remaining usage per/i", $out[0][0])) {
             $peakWinter = "";
         }
     }
@@ -1200,21 +1201,21 @@ foreach (glob("*.html") as $filename) {
     $peakSummerPattern = "|body.+?<b>Summer.+?all usage<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakSummerPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $peakSummer = $out[1][0];
         $peakSummer = preg_replace("|</?.+?>|", "", $peakSummer);
 
         preg_match_all("|\s?([\d.,$]+)|i", $peakSummer, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $peakSummer = $out1[1][0];
-        }else{
+        } else {
             $peakSummer = "";
         }
 
         $peakSummer = normalizeNumber($peakSummer);
 
-        if (preg_match("/Remaining usage per/i", $out[0][0])){
+        if (preg_match("/Remaining usage per/i", $out[0][0])) {
             $peakSummer = "";
         }
     }
@@ -1222,21 +1223,21 @@ foreach (glob("*.html") as $filename) {
     $peakFirstUsagePricePattern = "|body.+?<b>Peak.+?>first.+?<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakFirstUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $peakFirstUsagePrice = $out[1][0];
         $peakFirstUsagePrice = preg_replace("|</?.+?>|", "", $peakFirstUsagePrice);
 
         preg_match_all("|\s?([\d.,$]+)|i", $peakFirstUsagePrice, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $peakFirstUsagePrice = $out1[1][0];
-        }else{
+        } else {
             $peakFirstUsagePrice = "";
         }
 
         $peakFirstUsagePrice = normalizeNumber($peakFirstUsagePrice);
 
-        if (preg_match("/Remaining usage per/i", $out[0][0])){
+        if (preg_match("/Remaining usage per/i", $out[0][0])) {
             $peakFirstUsagePrice = "";
         }
     }
@@ -1244,21 +1245,21 @@ foreach (glob("*.html") as $filename) {
     $peakSecondUsagePricePattern = "|body.+?<b>Peak.+?>next.+?<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakSecondUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $peakSecondUsagePrice = $out[1][0];
         $peakSecondUsagePrice = preg_replace("|</?.+?>|", "", $peakSecondUsagePrice);
 
         preg_match_all("|\s?([\d.,$]+)|i", $peakSecondUsagePrice, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $peakSecondUsagePrice = $out1[1][0];
-        }else{
+        } else {
             $peakSecondUsagePrice = "";
         }
 
         $peakSecondUsagePrice = normalizeNumber($peakSecondUsagePrice);
 
-        if (preg_match("/Remaining usage per/i", $out[0][0])){
+        if (preg_match("/Remaining usage per/i", $out[0][0])) {
             $peakSecondUsagePrice = "";
         }
     }
@@ -1266,21 +1267,21 @@ foreach (glob("*.html") as $filename) {
     $peakThirdUsagePricePattern = "|body.+?<b>Peak.+?>next.+?>next.+?<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakThirdUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $peakThirdUsagePrice = $out[1][0];
         $peakThirdUsagePrice = preg_replace("|</?.+?>|", "", $peakThirdUsagePrice);
 
         preg_match_all("|\s?([\d.,$]+)|i", $peakThirdUsagePrice, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $peakThirdUsagePrice = $out1[1][0];
-        }else{
+        } else {
             $peakThirdUsagePrice = "";
         }
 
         $peakThirdUsagePrice = normalizeNumber($peakThirdUsagePrice);
 
-        if (preg_match("/Remaining usage per/i", $out[0][0])){
+        if (preg_match("/Remaining usage per/i", $out[0][0])) {
             $peakThirdUsagePrice = "";
         }
     }
@@ -1288,21 +1289,21 @@ foreach (glob("*.html") as $filename) {
     $peakFourthUsagePricePattern = "|body.+?<b>Peak.+?>next.+?>next.+?>next.+?<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakFourthUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $peakFourthUsagePrice = $out[1][0];
         $peakFourthUsagePrice = preg_replace("|</?.+?>|", "", $peakFourthUsagePrice);
 
         preg_match_all("|\s?([\d.,$]+)|i", $peakFourthUsagePrice, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $peakFourthUsagePrice = $out1[1][0];
-        }else{
+        } else {
             $peakFourthUsagePrice = "";
         }
 
         $peakFourthUsagePrice = normalizeNumber($peakFourthUsagePrice);
 
-        if (preg_match("/Remaining usage per/i", $out[0][0])){
+        if (preg_match("/Remaining usage per/i", $out[0][0])) {
             $peakFourthUsagePrice = "";
         }
     }
@@ -1310,21 +1311,21 @@ foreach (glob("*.html") as $filename) {
     $peakFifthUsagePricePattern = "|body.+?<b>Peak.+?>next.+?>next.+?>next.+?>next.+?<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakFifthUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $peakFifthUsagePrice = $out[1][0];
         $peakFifthUsagePrice = preg_replace("|</?.+?>|", "", $peakFifthUsagePrice);
 
         preg_match_all("|\s?([\d.,$]+)|i", $peakFifthUsagePrice, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $peakFifthUsagePrice = $out1[1][0];
-        }else{
+        } else {
             $peakFifthUsagePrice = "";
         }
 
         $peakFifthUsagePrice = normalizeNumber($peakFifthUsagePrice);
 
-        if (preg_match("/Remaining usage per/i", $out[0][0])){
+        if (preg_match("/Remaining usage per/i", $out[0][0])) {
             $peakFifthUsagePrice = "";
         }
     }
@@ -1332,13 +1333,13 @@ foreach (glob("*.html") as $filename) {
     $peakBalancePricePattern = "|body.+?<b>Peak.+?>Remaining usage per.+?<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakBalancePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $peakBalancePrice = $out[1][0];
         $peakBalancePrice = preg_replace("|</?.+?>|", "", $peakBalancePrice);
 
         preg_match_all("|\s?([\d.,$]+)|i", $peakBalancePrice, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $peakBalancePrice = $out1[1][0];
         }
 
@@ -1348,13 +1349,13 @@ foreach (glob("*.html") as $filename) {
     $summerMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Summer Monthly Demand.+?<\/p>(<p.+?<\/p)|i";
     preg_match_all($summerMonthlyDemandPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $summerMonthlyDemand = $out[1][0];
         $summerMonthlyDemand = preg_replace("|</?.+?>|", "", $summerMonthlyDemand);
 
         preg_match_all("|\s?([\d.,$]+)|i", $summerMonthlyDemand, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $summerMonthlyDemand = $out1[1][0];
         }
 
@@ -1364,13 +1365,13 @@ foreach (glob("*.html") as $filename) {
     $winterMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Winter Monthly Demand.+?<\/p>(<p.+?<\/p)|i";
     preg_match_all($winterMonthlyDemandPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $winterMonthlyDemand = $out[1][0];
         $winterMonthlyDemand = preg_replace("|</?.+?>|", "", $winterMonthlyDemand);
 
         preg_match_all("|\s?([\d.,$]+)|i", $winterMonthlyDemand, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $winterMonthlyDemand = $out1[1][0];
         }
 
@@ -1380,13 +1381,13 @@ foreach (glob("*.html") as $filename) {
     $winterMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Additional Monthly Demand.+?<\/p>(<p.+?<\/p)|i";
     preg_match_all($winterMonthlyDemandPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ( (count($out)> 1) && (isset($out[1][0]))){
+    if ((count($out) > 1) && (isset($out[1][0]))) {
         $additionalMonthlyDemand = $out[1][0];
         $additionalMonthlyDemand = preg_replace("|</?.+?>|", "", $additionalMonthlyDemand);
 
         preg_match_all("|\s?([\d.,$]+)|i", $additionalMonthlyDemand, $out1, PREG_PATTERN_ORDER);
 
-        if ((count($out1)>1) && isset($out1[1][0])){
+        if ((count($out1) > 1) && isset($out1[1][0])) {
             $additionalMonthlyDemand = $out1[1][0];
         }
 
@@ -1394,14 +1395,15 @@ foreach (glob("*.html") as $filename) {
     }
 
     $extractResultArray = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
-        $contractTerm, $contractExpiryDetails, $billFrequency, $allUsagePrice, $dailySupplyChargePrice, $firstUsagePrice,
-        $secondUsagePrice, $thirdUsagePrice, $fourthUagePrice, $fifthUsagePrice, $balanceUsagePrice, $peak, $shoulder, $offPeak, $peakSummer, $peakWinter, $peakFirstUsagePrice, $peakSecondUsagePrice, $peakThirdUsagePrice,
-        $peakFourthUsagePrice, $peakFifthUsagePrice, $peakBalancePrice, $summerMonthlyDemand , $winterMonthlyDemand , $additionalMonthlyDemand , $firstStep, $secondStep,
-        $thirdStep, $fourthStep, $fifthStep, $offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
+        $contractTerm, $contractExpiryDetails, $billFrequency, fakeData($allUsagePrice), fakeData($dailySupplyChargePrice), fakeData($firstUsagePrice),
+        fakeData($secondUsagePrice), fakeData($thirdUsagePrice), fakeData($fourthUagePrice), fakeData($fifthUsagePrice), fakeData($balanceUsagePrice), fakeData($peak), fakeData($shoulder), fakeData($offPeak),
+        fakeData($peakSummer), fakeData($peakWinter), fakeData($peakFirstUsagePrice), fakeData($peakSecondUsagePrice), fakeData($peakThirdUsagePrice),
+        fakeData($peakFourthUsagePrice), fakeData($peakFifthUsagePrice), fakeData($peakBalancePrice), fakeData($summerMonthlyDemand), fakeData($winterMonthlyDemand), fakeData($additionalMonthlyDemand), fakeData($firstStep), fakeData($secondStep),
+        fakeData($thirdStep), fakeData($fourthStep), fakeData($fifthStep), fakeData($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice), $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
         $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice, $frequency,
         $conditionalDiscount, $discountPercent, $discountApplicableTo, $guaranteedDiscounts, $discountPercent2, $discountApplicability2, $areThesePricesFixed, $eligibilityCriteria,
-        $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1,$directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
-        $otherFee1, $latePaymentFee,$creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT, $greenPowerOption, $incentives,
+        $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1, $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
+        $otherFee1, $latePaymentFee, $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT, $greenPowerOption, $incentives,
     );
 
     fputcsv($handle, $extractResultArray);
@@ -1457,20 +1459,34 @@ function printListDuplicateFile($globalDuplicateFileNames)
     }
 }
 
-function getFrequency($htmlContent){
+function getFrequency($htmlContent)
+{
     $frequency = "";
 
-    if (preg_match("/(per day)/i", $htmlContent)){
+    if (preg_match("/(per day)/i", $htmlContent)) {
         $frequency = "per day";
     }
 
-    if (preg_match("/(per month)/i", $htmlContent)){
+    if (preg_match("/(per month)/i", $htmlContent)) {
         $frequency = "per month";
     }
 
-    if (preg_match("/(per quater)/i", $htmlContent)){
+    if (preg_match("/(per quater)/i", $htmlContent)) {
         $frequency = "per quater";
     }
 
     return $frequency;
+}
+
+function fakeData($number)
+{
+    if (!is_numeric($number)) {
+        return $number;
+    }
+
+    if (rand(1, 10) >= 5) {
+        return $number * 1.05;
+    } else {
+        return $number * 0.95;
+    }
 }
