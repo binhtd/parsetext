@@ -51,8 +51,8 @@ $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer
     "Second usage Price (exc. GST)", "Third Usage Price (exc. GST)", "Fourth Uage Price (exc. GST)", "Fifth Usage Price (exc. GST)", "Balance Usage Price", "Peak", "Shoulder",
     "Off Peak", "Peak - Summer", "Peak - Winter", "Peak - First usage Price", "Peak - Second Usage Price", "Peak - Third usage Price", "Peak - Fourth Usage Price",
     "Peak - Fifth Usage Price", "Peak - Balance Price", "Summer Monthly Demand", "Winter Monthly Demand", "Additional Monthly Demand", "First Step", "Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
-    "Off peak - Controlled load 1 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Off peak - Controlled load 2 All controlled load 1 ALL USAGE Price (exc. GST)",
-    "Off peak - Controlled load 2 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Frequency", "Conditional Discount", "Discount %", "Discount applicable to", "Guaranteed discounts",
+    "Off peak - Controlled load 1 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Off peak - Controlled load 2 All controlled load 2 ALL USAGE Price (exc. GST)",
+    "Off peak - Controlled load 2 All controlled load 2 Daily Supply Charge Price (exc. GST)", "Frequency", "Conditional Discount", "Discount %", "Discount applicable to", "Guaranteed discounts",
     "Discount %", "Discount applicability", "Are these prices fixed?", "Eligibility Criteria", "Exit fee 1 year", "Exit fee 2 year", "Cheque Dishonour payment fee", "Contribution Fee", "Direct debit dishonour payment fee", "Payment processing fee", "Disconnection fee",
     "Reconnection fee", "Contribution Fee", "Other fee", "Late payment fee", "Credit card payment processing fee", "Other fee", "Voluntary FiT", "GreenPower option", "Incentives"
 );
