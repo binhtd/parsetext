@@ -398,7 +398,7 @@ foreach (glob("*.html") as $filename) {
         $reconnectionFee = preg_replace("|</?.+?>|", "", $reconnectionFee);
         $reconnectionFee = preg_replace("|[^$\d,. ]|", "", $reconnectionFee);
         $reconnectionFee = trim($reconnectionFee);
-        $reconnectionFeeArray = split(" ", $reconnectionFee);
+        $reconnectionFeeArray = explode(" ", $reconnectionFee);
         if (isset($reconnectionFeeArray[0])) {
             $reconnectionFee = normalizeNumber($reconnectionFeeArray[0]);
         }
@@ -593,7 +593,7 @@ foreach (glob("*.html") as $filename) {
 
         $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
         $discountPercent = normalizeNumber($discountPercent);
-        $discountPercentArray = split("%", $discountPercent);
+        $discountPercentArray = explode("%", $discountPercent);
         if (isset($discountPercentArray[0]) && preg_match("|^\d+[,.]*\d*$|", $discountPercentArray[0])) {
             $discountPercent = $discountPercentArray[0] . "%";
         } else {
@@ -606,7 +606,7 @@ foreach (glob("*.html") as $filename) {
 
                 $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
 
-                $discountPercentArray = split("%", $discountPercent);
+                $discountPercentArray = explode("%", $discountPercent);
                 if (isset($discountPercentArray[0]) && preg_match("|^\d+[,.]*\d*$|", $discountPercentArray[0])) {
                     $discountPercent = $discountPercentArray[0] . "%";
                 }
