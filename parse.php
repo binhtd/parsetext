@@ -61,12 +61,13 @@ if (file_exists(__DIR__ . "/parse_result.csv")) {
     unlink(__DIR__ . "/parse_result.csv");
 }
 
+if (file_exists(__DIR__ . "/parse_result_fake.csv")) {
+    unlink(__DIR__ . "/parse_result_fake.csv");
+}
+
 if (file_exists(__DIR__ . "/duplicate_files.txt")) {
     unlink(__DIR__ . "/duplicate_files.txt");
 }
-
-$handle = fopen(__DIR__ . "/parse_result.csv", "a+");
-fputcsv($handle, $csvHeader);
 
 chdir(__DIR__ . "/html/");
 echo "\n\n";
@@ -1394,7 +1395,20 @@ foreach (glob("*.html") as $filename) {
         $additionalMonthlyDemand = normalizeNumber($additionalMonthlyDemand);
     }
 
-    $extractResultArray = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
+    $csvData = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
+        $contractTerm, $contractExpiryDetails, $billFrequency, ($allUsagePrice), ($dailySupplyChargePrice), ($firstUsagePrice),
+        ($secondUsagePrice), ($thirdUsagePrice), ($fourthUagePrice), ($fifthUsagePrice), ($balanceUsagePrice), ($peak), ($shoulder), ($offPeak),
+        ($peakSummer), ($peakWinter), ($peakFirstUsagePrice), ($peakSecondUsagePrice), ($peakThirdUsagePrice),
+        ($peakFourthUsagePrice), ($peakFifthUsagePrice), ($peakBalancePrice), ($summerMonthlyDemand), ($winterMonthlyDemand), ($additionalMonthlyDemand), ($firstStep), ($secondStep),
+        ($thirdStep), ($fourthStep), ($fifthStep), ($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice), $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
+        $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice, $frequency,
+        $conditionalDiscount, $discountPercent, $discountApplicableTo, $guaranteedDiscounts, $discountPercent2, $discountApplicability2, $areThesePricesFixed, $eligibilityCriteria,
+        $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1, $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
+        $otherFee1, $latePaymentFee, $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT, $greenPowerOption, $incentives,
+    );
+    writeDataToCSVFile("parse_result", $csvHeader, $csvData);
+
+    $csvData = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
         $contractTerm, $contractExpiryDetails, $billFrequency, fakeData($allUsagePrice), fakeData($dailySupplyChargePrice), fakeData($firstUsagePrice),
         fakeData($secondUsagePrice), fakeData($thirdUsagePrice), fakeData($fourthUagePrice), fakeData($fifthUsagePrice), fakeData($balanceUsagePrice), fakeData($peak), fakeData($shoulder), fakeData($offPeak),
         fakeData($peakSummer), fakeData($peakWinter), fakeData($peakFirstUsagePrice), fakeData($peakSecondUsagePrice), fakeData($peakThirdUsagePrice),
@@ -1405,8 +1419,7 @@ foreach (glob("*.html") as $filename) {
         $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1, $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
         $otherFee1, $latePaymentFee, $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT, $greenPowerOption, $incentives,
     );
-
-    fputcsv($handle, $extractResultArray);
+    writeDataToCSVFile("parse_result_fake", $csvHeader, $csvData);
 }
 $timeEnd = microtime(true);
 $time = $timeEnd - $timeStart;
@@ -1414,7 +1427,6 @@ echo "Finish parse $totalHtmlFile files\n";
 $time = number_format($timeEnd - $timeStart, 2);
 echo "Total time parse document: {$time}s\n";
 echo "##################################################################################################\n";
-fclose($handle);
 
 printListDuplicateFile($globalDuplicateFileNames);
 
@@ -1489,4 +1501,15 @@ function fakeData($number)
     } else {
         return $number * 0.95;
     }
+}
+
+function writeDataToCSVFile($fileName, $csvHeader, $csvData){
+    if (!is_array($csvHeader) && !is_array($csvData)){
+        die("Your csv header or csv data is not correct please verify");
+    }
+
+    $handle = fopen(__DIR__ . "/$fileName.csv", "a+");
+    fputcsv($handle, $csvHeader);
+    fputcsv($handle, $csvData);
+    fclose($handle);
 }
