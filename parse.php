@@ -12,39 +12,39 @@ if (!is_dir(__DIR__ . "/pdf")) {
     die("Folder holds pdf does not exist inside " . __DIR__ . "\n");
 }
 
-if (file_exists(__DIR__ . "/html")) {
-    system("rm -rf " . escapeshellarg(__DIR__ . "/html"));
-}
-mkdir(__DIR__ . "/html");
-echo "##################################################################################################\n";
-echo "Convert pdf to html\n";
-$timeStart = microtime(true);
-$totalPdfFile = 0;
-
-exec(" find " . __DIR__ . "/pdf/" . " -name *.pdf ", $filesWithFullPath, $returnStatus);
-
-if ((count($filesWithFullPath) < 0) || ($returnStatus != 0)) {
-    die("the pdf folder didn't have any pdf file to processing");
-}
-
-foreach ($filesWithFullPath as $filename) {
-    $without_extension = pathinfo($filename, PATHINFO_FILENAME);
-
-    echo "Convert $filename\n";
-    try {
-        exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
-    } catch (Exception $ex) {
-
-    }
-
-    $totalPdfFile++;
-}
-
-$timeEnd = microtime(true);
-echo "Finish convert $totalPdfFile files\n";
-$time = number_format($timeEnd - $timeStart, 2);
-echo "Total time convert pdf->html: {$time}s\n";
-echo "##################################################################################################\n";
+//if (file_exists(__DIR__ . "/html")) {
+//    system("rm -rf " . escapeshellarg(__DIR__ . "/html"));
+//}
+//mkdir(__DIR__ . "/html");
+//echo "##################################################################################################\n";
+//echo "Convert pdf to html\n";
+//$timeStart = microtime(true);
+//$totalPdfFile = 0;
+//
+//exec(" find " . __DIR__ . "/pdf/" . " -name *.pdf ", $filesWithFullPath, $returnStatus);
+//
+//if ((count($filesWithFullPath) < 0) || ($returnStatus != 0)) {
+//    die("the pdf folder didn't have any pdf file to processing");
+//}
+//
+//foreach ($filesWithFullPath as $filename) {
+//    $without_extension = pathinfo($filename, PATHINFO_FILENAME);
+//
+//    echo "Convert $filename\n";
+//    try {
+//        exec("pdftohtml -noframes -s $filename " . __DIR__ . "/html/$without_extension.html");
+//    } catch (Exception $ex) {
+//
+//    }
+//
+//    $totalPdfFile++;
+//}
+//
+//$timeEnd = microtime(true);
+//echo "Finish convert $totalPdfFile files\n";
+//$time = number_format($timeEnd - $timeStart, 2);
+//echo "Total time convert pdf->html: {$time}s\n";
+//echo "##################################################################################################\n";
 
 $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer No.", "Customer type", "Fuel type", "Distributor(s)", "Tariff type", "Offer type", "Release Date",
     "Contract term", "Contract expiry details", "Bill frequency", "All usage Price (exc. GST)", "Daily supply charge Price (exc. GST)", "First usage Price (exc. GST)",
@@ -68,6 +68,11 @@ if (file_exists(__DIR__ . "/parse_result_fake.csv")) {
 if (file_exists(__DIR__ . "/duplicate_files.txt")) {
     unlink(__DIR__ . "/duplicate_files.txt");
 }
+
+$handleRealData = fopen(__DIR__ . "/parse_result.csv", "a+");
+$handleFakeData = fopen(__DIR__ . "/parse_result_fake.csv", "a+");
+fputcsv($handleRealData, $csvHeader);
+fputcsv($handleFakeData, $csvHeader);
 
 chdir(__DIR__ . "/html/");
 echo "\n\n";
@@ -1406,7 +1411,7 @@ foreach (glob("*.html") as $filename) {
         $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1, $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
         $otherFee1, $latePaymentFee, $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT, $greenPowerOption, $incentives,
     );
-    writeDataToCSVFile("parse_result", $csvHeader, $csvData);
+    fputcsv($handleRealData, $csvData);
 
     $csvData = array($pdfFileName, $postCode, $retailer, $offerName, $offerNo, $customerType, $fuelType, $distributor, $tariffType, $offerType, $releaseDate,
         $contractTerm, $contractExpiryDetails, $billFrequency, fakeData($allUsagePrice), fakeData($dailySupplyChargePrice), fakeData($firstUsagePrice),
@@ -1419,7 +1424,8 @@ foreach (glob("*.html") as $filename) {
         $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1, $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
         $otherFee1, $latePaymentFee, $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT, $greenPowerOption, $incentives,
     );
-    writeDataToCSVFile("parse_result_fake", $csvHeader, $csvData);
+
+    fputcsv($handleFakeData, $csvData);
 }
 $timeEnd = microtime(true);
 $time = $timeEnd - $timeStart;
@@ -1427,6 +1433,9 @@ echo "Finish parse $totalHtmlFile files\n";
 $time = number_format($timeEnd - $timeStart, 2);
 echo "Total time parse document: {$time}s\n";
 echo "##################################################################################################\n";
+
+fclose($handleFakeData);
+fclose($handleRealData);
 
 printListDuplicateFile($globalDuplicateFileNames);
 
@@ -1501,15 +1510,4 @@ function fakeData($number)
     } else {
         return $number * 0.95;
     }
-}
-
-function writeDataToCSVFile($fileName, $csvHeader, $csvData){
-    if (!is_array($csvHeader) && !is_array($csvData)){
-        die("Your csv header or csv data is not correct please verify");
-    }
-
-    $handle = fopen(__DIR__ . "/$fileName.csv", "a+");
-    fputcsv($handle, $csvHeader);
-    fputcsv($handle, $csvData);
-    fclose($handle);
 }
