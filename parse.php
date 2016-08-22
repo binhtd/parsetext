@@ -471,10 +471,38 @@ foreach (glob("*.html") as $filename) {
         }
     }
 
+    $firstUsagePricePattern = "|body.+?<b>Electricity pricing information<\/b><\/p>(.+?Remaining usage per day)<\/p>(.+?)<p|i";
+    preg_match_all($firstUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if (empty($firstUsagePrice) && (count($out) > 2) && (isset($out[2][0]))) {
+        $firstUsagePrice = $out[2][0];
+        $firstUsagePrice = preg_replace("|</?.+?>|", "", $firstUsagePrice);
+        $firstUsagePrice = preg_replace("|[^\d,.]|", "", $firstUsagePrice);
+
+        $firstUsagePrice = normalizeNumber($firstUsagePrice);
+        if (isset($out[1][0]) && !preg_match("|first|i", $out[1][0])) {
+            $firstUsagePrice = "";
+        }
+    }
+
+    $balanceUsagePricePattern = "#body.+?<b>Electricity pricing information<\/b>.+?Remaining usage per.+?<\/p>.+?Remaining usage per.+?<\/p>(.+?)<\/p#i";
+    preg_match_all($balanceUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if (empty($balanceUsagePrice) && (count($out) > 1) && (isset($out[1][0]))) {
+        $balanceUsagePrice = $out[1][0];
+        $balanceUsagePrice = preg_replace("|</?.+?>|", "", $balanceUsagePrice);
+        $balanceUsagePrice = preg_replace("|[^\d,.]|", "", $balanceUsagePrice);
+
+        $balanceUsagePrice = normalizeNumber($balanceUsagePrice);
+        if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
+            $balanceUsagePrice = "";
+        }
+    }
+
     $balanceUsagePricePattern = "#body.+?<b>Electricity pricing information<\/b>.+?Remaining usage per.+?<\/p>(.+?)<\/p#i";
     preg_match_all($balanceUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ((count($out) > 1) && (isset($out[1][0]))) {
+    if (empty($balanceUsagePrice) && (count($out) > 1) && (isset($out[1][0]))) {
         $balanceUsagePrice = $out[1][0];
         $balanceUsagePrice = preg_replace("|</?.+?>|", "", $balanceUsagePrice);
         $balanceUsagePrice = preg_replace("|[^\d,.]|", "", $balanceUsagePrice);
@@ -615,7 +643,7 @@ foreach (glob("*.html") as $filename) {
         $discountPercentArray = explode("%", $discountPercent);
         if (isset($discountPercentArray[0]) && preg_match("|^\d+[,.]*\d*$|", $discountPercentArray[0])) {
             $discountPercent = $discountPercentArray[0] . "%";
-            $discountApplicableTo = "Supply and Usage Charges";
+            $discountApplicableTo = getDiscountApplicableTo($out[2][0]);
         } else {
             $discountPercentPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
             preg_match_all($discountPercentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
@@ -625,10 +653,11 @@ foreach (glob("*.html") as $filename) {
                 $discountPercent = preg_replace("|</?.+?>|", "", $discountPercent);
 
                 $discountPercent = preg_replace("/[^0-9,.%]/", "", $discountPercent);
-
+                $discountPercent = normalizeNumber($discountPercent);
                 $discountPercentArray = explode("%", $discountPercent);
                 if (isset($discountPercentArray[0]) && preg_match("|^\d+[,.]*\d*$|", $discountPercentArray[0])) {
                     $discountPercent = $discountPercentArray[0] . "%";
+                    $discountApplicableTo = getDiscountApplicableTo($out[2][0]);
                 }
             }
         }
@@ -1371,7 +1400,7 @@ foreach (glob("*.html") as $filename) {
         $peakBalancePrice = normalizeNumber($peakBalancePrice);
     }
 
-    $summerMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Summer Monthly Demand.+?<\/p>(<p.+?<\/p)|i";
+    $summerMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Summer Monthly Demand<\/p>(<p.+?<\/p)|i";
     preg_match_all($summerMonthlyDemandPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 1) && (isset($out[1][0]))) {
@@ -1387,7 +1416,7 @@ foreach (glob("*.html") as $filename) {
         $summerMonthlyDemand = normalizeNumber($summerMonthlyDemand);
     }
 
-    $winterMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Winter Monthly Demand.+?<\/p>(<p.+?<\/p)|i";
+    $winterMonthlyDemandPattern = "|body.+?<b>Capacity charges.+?>Winter Monthly Demand<\/p>(<p.+?<\/p)|i";
     preg_match_all($winterMonthlyDemandPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 1) && (isset($out[1][0]))) {
@@ -1529,4 +1558,14 @@ function fakeData($number)
     } else {
         return $number * 0.95;
     }
+}
+
+function getDiscountApplicableTo($discountInformation){
+    $discountApplicableTo = "";
+
+    if (preg_match("/energy/i", $discountInformation) || preg_match("/supply/i", $discountInformation) || preg_match("/total bill/i", $discountInformation)) {
+        $discountApplicableTo = "Supply and Energy Charges";
+    }
+
+    return $discountApplicableTo;
 }
