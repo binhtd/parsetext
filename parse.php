@@ -1488,7 +1488,7 @@ function printListDuplicateFile($globalDuplicateFileNames)
 
 function getFrequency($htmlContent)
 {
-    $frequency = "";
+    $frequency = "per kWh";
 
     if (preg_match("/(per day)/i", $htmlContent)) {
         $frequency = "per day";
