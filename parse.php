@@ -1498,8 +1498,8 @@ function getFrequency($htmlContent)
         $frequency = "per month";
     }
 
-    if (preg_match("/(per quater)/i", $htmlContent)) {
-        $frequency = "per quater";
+    if (preg_match("/(per quarter)/i", $htmlContent)) {
+        $frequency = "per quarter";
     }
 
     return $frequency;
