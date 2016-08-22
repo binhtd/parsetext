@@ -1141,7 +1141,7 @@ foreach (glob("*.html") as $filename) {
     $peakPattern = "|body.+?<b>Peak.+?all usage<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if (count($out) < 1){
+    if (empty($out[1][0])){
         $peakPattern = "|body.+?<b>All Peak.+?all usage<\/p>(<p.+?<\/p)|i";
         preg_match_all($peakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
     }
