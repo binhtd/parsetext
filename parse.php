@@ -1127,6 +1127,11 @@ foreach (glob("*.html") as $filename) {
     $peakPattern = "|body.+?<b>Peak.+?all usage<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
+    if (count($out) < 1){
+        $peakPattern = "|body.+?<b>All Peak.+?all usage<\/p>(<p.+?<\/p)|i";
+        preg_match_all($peakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+    }
+
     if ((count($out) > 1) && (isset($out[1][0]))) {
         $peak = $out[1][0];
         $peak = preg_replace("|</?.+?>|", "", $peak);
@@ -1164,7 +1169,7 @@ foreach (glob("*.html") as $filename) {
         $shoulder = normalizeNumber($shoulder);
     }
 
-    $offPeakPattern = "|body.+?<b>Off[-\s]?peak (all)?.+?all usage<\/p>(<p.+?<\/p)|i";
+    $offPeakPattern = "|body.+?<b>Off\s*[-]?\s*peak (all)?.+?all usage<\/p>(<p.+?<\/p)|i";
     preg_match_all($offPeakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
