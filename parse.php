@@ -259,6 +259,19 @@ foreach (glob("*.html") as $filename) {
         }
     }
 
+    $allUsagePricePattern = "|body.+?<b>Electricity pricing information<\/b><\/p>(<p.+?>){6}(.+?)<p|i";
+    preg_match_all($allUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if (empty($allUsagePrice) && (count($out) > 2) && (isset($out[2][0]))) {
+        $allUsagePrice = $out[2][0];
+        $allUsagePrice = preg_replace("|</?.+?>|", "", $allUsagePrice);
+        $allUsagePrice = preg_replace("|[^\d,.]|", "", $allUsagePrice);
+
+        if (!preg_match("/All usage/i", $out[0][0])) {
+            $allUsagePrice = "";
+        }
+    }
+
     $dailySupplyChargePricePattern = "|body.+?<b>All consumption Anytime<\/b><\/p>(<p.+?>){1,3}<p.+?>Daily supply charge<\/p>(.+?)<p|i";
     preg_match_all($dailySupplyChargePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
