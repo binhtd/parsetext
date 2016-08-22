@@ -590,7 +590,7 @@ foreach (glob("*.html") as $filename) {
         $conditionalDiscount = preg_replace("|</?.+?>|", "", $conditionalDiscount);
     }
 
-    $discountPercentPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
+    $discountPercentPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){1}(.+?)<p|i";
     preg_match_all($discountPercentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if ((count($out) > 2) && (isset($out[2][0]))) {
@@ -602,8 +602,9 @@ foreach (glob("*.html") as $filename) {
         $discountPercentArray = explode("%", $discountPercent);
         if (isset($discountPercentArray[0]) && preg_match("|^\d+[,.]*\d*$|", $discountPercentArray[0])) {
             $discountPercent = $discountPercentArray[0] . "%";
+            $discountApplicableTo = "Supply and Usage Charges";
         } else {
-            $discountPercentPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){1}(.+?)<p|i";
+            $discountPercentPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
             preg_match_all($discountPercentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
             if ((count($out) > 2) && (isset($out[2][0]))) {
@@ -665,7 +666,7 @@ foreach (glob("*.html") as $filename) {
 
     $discountApplicableToPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
     preg_match_all($discountApplicableToPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
-    if ((count($out) > 2) && (isset($out[2][0])) && preg_match("/Usage charges/i", $out[2][0])) {
+    if ((count($out) > 2) && (isset($out[2][0])) && preg_match("/Usage charges/i", $out[2][0]) && empty($discountApplicableTo)) {
         $discountApplicableTo = "Usage charges";
     }
 
