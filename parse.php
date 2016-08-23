@@ -234,7 +234,7 @@ foreach (glob("*.html") as $filename) {
         }
     }
 
-    $allUsagePricePattern = "|body.+?<b>Electricity pricing information<\/b><\/p>(<p.+?>){5}(.+?)<p|i";
+    $allUsagePricePattern = "|body.+?<b>Electricity pricing information<\/b><\/p>(<p.+?>){6}(.+?)<p|i";
     preg_match_all($allUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
     if (empty($allUsagePrice) && (count($out) > 2) && (isset($out[2][0]))) {
