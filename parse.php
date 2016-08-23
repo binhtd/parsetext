@@ -480,8 +480,19 @@ foreach (glob("*.html") as $filename) {
         $firstUsagePrice = preg_replace("|[^\d,.]|", "", $firstUsagePrice);
 
         $firstUsagePrice = normalizeNumber($firstUsagePrice);
-        if (isset($out[1][0]) && !preg_match("|first|i", $out[1][0])) {
-            $firstUsagePrice = "";
+    }
+
+    $balanceUsagePricePattern = "#body.+?<b>Electricity pricing information<\/b>.+?Remaining usage per.+?<\/p>.+?Remaining usage per.+?Remaining usage per.+?<\/p>(.+?)<\/p#i";
+    preg_match_all($balanceUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if (empty($balanceUsagePrice) && (count($out) > 1) && (isset($out[1][0]))) {
+        $balanceUsagePrice = $out[1][0];
+        $balanceUsagePrice = preg_replace("|</?.+?>|", "", $balanceUsagePrice);
+        $balanceUsagePrice = preg_replace("|[^\d,.]|", "", $balanceUsagePrice);
+
+        $balanceUsagePrice = normalizeNumber($balanceUsagePrice);
+        if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
+            $balanceUsagePrice = "";
         }
     }
 
@@ -530,6 +541,20 @@ foreach (glob("*.html") as $filename) {
 
     if (empty($secondUsagePrice) && (count($out) > 2) && (isset($out[2][0]))) {
         $secondUsagePrice = $out[2][0];
+        $secondUsagePrice = preg_replace("|</?.+?>|", "", $secondUsagePrice);
+        $secondUsagePrice = preg_replace("|[^\d,.]|", "", $secondUsagePrice);
+
+        $secondUsagePrice = normalizeNumber($secondUsagePrice);
+        if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
+            $secondUsagePrice = "";
+        }
+    }
+
+    $secondUsagePricePattern = "#body.+?<b>Electricity pricing information<\/b>.+?Remaining usage per.+?<\/p>.+?Remaining usage per.+?<\/p>(.+?)<\/p#i";
+    preg_match_all($secondUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if (empty($secondUsagePrice) && (count($out) > 1) && (isset($out[1][0]))) {
+        $secondUsagePrice = $out[1][0];
         $secondUsagePrice = preg_replace("|</?.+?>|", "", $secondUsagePrice);
         $secondUsagePrice = preg_replace("|[^\d,.]|", "", $secondUsagePrice);
 
@@ -676,7 +701,7 @@ foreach (glob("*.html") as $filename) {
             $discountPercent2 = $out[2][0];
             $discountPercent2 = preg_replace("|</?.+?>|", "", $discountPercent2);
 
-            if (preg_match("|Consumption charges|i", $out[2][0])) {
+            if (preg_match("|Consumption charges|i", $out[2][0]) && empty($discountApplicability2)) {
                 $discountApplicability2 = "Consumption charges";
             }
 
@@ -691,7 +716,7 @@ foreach (glob("*.html") as $filename) {
                 $discountPercent2 = $out[1][0];
                 $discountPercent2 = preg_replace("|</?.+?>|", "", $discountPercent2);
 
-                if (preg_match("|Consumption charges|i", $out[1][0])) {
+                if (preg_match("|Consumption charges|i", $out[1][0]) && empty($discountApplicability2)) {
                     $discountApplicability2 = "Consumption charges";
                 }
 
@@ -709,7 +734,11 @@ foreach (glob("*.html") as $filename) {
     $discountApplicableToPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
     preg_match_all($discountApplicableToPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
     if ((count($out) > 2) && (isset($out[2][0])) && preg_match("/Usage charges/i", $out[2][0]) && empty($discountApplicableTo)) {
-        $discountApplicableTo = "Usage charges";
+        $discountApplicableTo = "Usage and Supply Charges";
+
+        if (empty($discountApplicability2)){
+            $discountApplicability2 = "Usage and Supply Charges";
+        }
     }
 
     $chequeDishonourPaymentFeePattern = "|body.+?<p.*?>Cheque Dishonour payment fee<\/p><p.*?>(.*?)<\/p>|i";
@@ -824,7 +853,7 @@ foreach (glob("*.html") as $filename) {
     $firstUsagePricePattern = "|body.+?<b>Gas pricing information<\/b><\/p>((<p.+?>){2,7}).+?first.+?<\/p>(.+?)<p|i";
     preg_match_all($firstUsagePricePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if ((count($out) > 3) && (isset($out[3][0]))) {
+    if (empty($firstUsagePrice) && (count($out) > 3) && (isset($out[3][0]))) {
         $firstUsagePrice = $out[3][0];
         $firstUsagePrice = preg_replace("|</?.+?>|", "", $firstUsagePrice);
         $firstUsagePrice = preg_replace("|[^\d,.]|", "", $firstUsagePrice);
