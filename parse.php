@@ -254,10 +254,6 @@ foreach (glob("*.html") as $filename) {
         $allUsagePrice = $out[2][0];
         $allUsagePrice = preg_replace("|</?.+?>|", "", $allUsagePrice);
         $allUsagePrice = preg_replace("|[^\d,.]|", "", $allUsagePrice);
-
-        if (!preg_match("/All usage/i", $out[0][0])) {
-            $allUsagePrice = "";
-        }
     }
 
     $allUsagePricePattern = "|body.+?<b>Electricity pricing information<\/b><\/p>(<p.+?>){6}(.+?)<p|i";
