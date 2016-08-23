@@ -52,7 +52,7 @@ $csvHeader = array("PDF File Name", "Postcode", "Retailer", "Offer Name", "Offer
     "Off Peak", "Peak - Summer", "Peak - Winter", "Peak - First usage Price", "Peak - Second Usage Price", "Peak - Third usage Price", "Peak - Fourth Usage Price",
     "Peak - Fifth Usage Price", "Peak - Balance Price", "Summer Monthly Demand", "Winter Monthly Demand", "Additional Monthly Demand", "First Step", "Second Step", "Third Step", "Fourth Step", "Fifth Step", "Off peak - Controlled load 1 All controlled load 1 ALL USAGE Price (exc. GST)",
     "Off peak - Controlled load 1 All controlled load 1 Daily Supply Charge Price (exc. GST)", "Off peak - Controlled load 2 All controlled load 2 ALL USAGE Price (exc. GST)",
-    "Off peak - Controlled load 2 All controlled load 2 Daily Supply Charge Price (exc. GST)", "Frequency", "Conditional Discount", "Discount %", "Discount applicable to", "Guaranteed discounts",
+    "Off peak - Controlled load 2 All controlled load 2 Daily Supply Charge Price (exc. GST)", "Frequency", "Conditional Discount", "Discount %", "Discount applicable to", "Conditional Discount 2", "Conditional Discount 2 %", "Conditional Discount 2 Applicable to", "Guaranteed discounts",
     "Discount %", "Discount applicability", "Are these prices fixed?", "Eligibility Criteria", "Exit fee 1 year", "Exit fee 2 year", "Cheque Dishonour payment fee", "Contribution Fee", "Direct debit dishonour payment fee", "Payment processing fee", "Disconnection fee",
     "Reconnection fee", "Contribution Fee", "Other fee", "Late payment fee", "Credit card payment processing fee", "Other fee", "Voluntary FiT", "GreenPower option", "Incentives"
 );
@@ -114,6 +114,7 @@ foreach (glob("*.html") as $filename) {
     $creditCardPaymentProcessingFee = $otherFee2 = $voluntaryFiT = $greenPowerOption = $incentives = "";
     $peak = $shoulder = $offPeak = $peakSummer = $peakWinter = $peakFirstUsagePrice = $peakSecondUsagePrice = $peakThirdUsagePrice = $peakFourthUsagePrice = $peakFifthUsagePrice = $peakBalancePrice = "";
     $summerMonthlyDemand = $winterMonthlyDemand = $additionalMonthlyDemand = "";
+    $conditionalDiscount2 = $conditionalDiscount2Percentage = $conditionalDiscount2Applicableto = "";
 
 
     $htmlContent = str_replace("\n", "", $htmlContent);
@@ -736,7 +737,7 @@ foreach (glob("*.html") as $filename) {
     if ((count($out) > 2) && (isset($out[2][0])) && preg_match("/Usage charges/i", $out[2][0]) && empty($discountApplicableTo)) {
         $discountApplicableTo = "Usage and Supply Charges";
 
-        if (empty($discountApplicability2)){
+        if (empty($discountApplicability2)) {
             $discountApplicability2 = "Usage and Supply Charges";
         }
     }
@@ -1199,7 +1200,7 @@ foreach (glob("*.html") as $filename) {
     $peakPattern = "|body.+?<b>Peak.+?all usage<\/p>(<p.+?<\/p)|i";
     preg_match_all($peakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
-    if (empty($out[1][0])){
+    if (empty($out[1][0])) {
         $peakPattern = "|body.+?<b>All Peak.+?all usage<\/p>(<p.+?<\/p)|i";
         preg_match_all($peakPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
     }
@@ -1484,7 +1485,7 @@ foreach (glob("*.html") as $filename) {
         ($peakFourthUsagePrice), ($peakFifthUsagePrice), ($peakBalancePrice), ($summerMonthlyDemand), ($winterMonthlyDemand), ($additionalMonthlyDemand), ($firstStep), ($secondStep),
         ($thirdStep), ($fourthStep), ($fifthStep), ($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice), $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
         $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice, $frequency,
-        $conditionalDiscount, $discountPercent, $discountApplicableTo, $guaranteedDiscounts, $discountPercent2, $discountApplicability2, $areThesePricesFixed, $eligibilityCriteria,
+        $conditionalDiscount, $discountPercent, $discountApplicableTo, $conditionalDiscount2, $conditionalDiscount2Percentage, $conditionalDiscount2Applicableto, $guaranteedDiscounts, $discountPercent2, $discountApplicability2, $areThesePricesFixed, $eligibilityCriteria,
         $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1, $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
         $otherFee1, $latePaymentFee, $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT, $greenPowerOption, $incentives,
     );
@@ -1497,7 +1498,7 @@ foreach (glob("*.html") as $filename) {
         fakeData($peakFourthUsagePrice), fakeData($peakFifthUsagePrice), fakeData($peakBalancePrice), fakeData($summerMonthlyDemand), fakeData($winterMonthlyDemand), fakeData($additionalMonthlyDemand), fakeData($firstStep), fakeData($secondStep),
         fakeData($thirdStep), fakeData($fourthStep), fakeData($fifthStep), fakeData($offPeakControlledLoad1AllControlledLoad1ALLUSAGEPrice), $offPeakControlledLoad1AllControlledLoad1DailySupplyChargePrice,
         $offPeakControlledLoad2AllControlledLoad1ALLUSAGEPrice, $offPeakControlledLoad2AllControlledLoad1DailySupplyChargePrice, $frequency,
-        $conditionalDiscount, $discountPercent, $discountApplicableTo, $guaranteedDiscounts, $discountPercent2, $discountApplicability2, $areThesePricesFixed, $eligibilityCriteria,
+        $conditionalDiscount, $discountPercent, $discountApplicableTo, $conditionalDiscount2, $conditionalDiscount2Percentage, $conditionalDiscount2Applicableto, $guaranteedDiscounts, $discountPercent2, $discountApplicability2, $areThesePricesFixed, $eligibilityCriteria,
         $exitFee1Year, $exitFee2Year, $chequeDishonourPaymentFee, $contributionFee1, $directDebitDishonourPaymentFee, $paymentProcessingFee, $disconnectionFee, $reconnectionFee, $contributionFee2,
         $otherFee1, $latePaymentFee, $creditCardPaymentProcessingFee, $otherFee2, $voluntaryFiT, $greenPowerOption, $incentives,
     );
@@ -1589,7 +1590,8 @@ function fakeData($number)
     }
 }
 
-function getDiscountApplicableTo($discountInformation){
+function getDiscountApplicableTo($discountInformation)
+{
     $discountApplicableTo = "";
 
     if (preg_match("/energy/i", $discountInformation) || preg_match("/supply/i", $discountInformation) || preg_match("/total bill/i", $discountInformation)) {
