@@ -559,6 +559,10 @@ foreach (glob("*.html") as $filename) {
         if (isset($out[0][0]) && preg_match("|Daily supply charge|i", $out[0][0])) {
             $secondUsagePrice = "";
         }
+
+        if ($balanceUsagePrice == $secondUsagePrice){
+            $secondUsagePrice = "";
+        }
     }
 
     $thirdUsagePricePattern = "|body.+?<b>All Consumption Anytime<\/b><\/p>(<p.+?>){1}Next.+?<\/p>(.+?)<p|i";
