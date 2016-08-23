@@ -657,6 +657,14 @@ foreach (glob("*.html") as $filename) {
         $conditionalDiscount = preg_replace("|</?.+?>|", "", $conditionalDiscount);
     }
 
+    $conditionalDiscount2Pattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){3}(.+?)<p|i";
+    preg_match_all($conditionalDiscount2Pattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ((count($out) > 2) && (isset($out[2][0]))) {
+        $conditionalDiscount2 = $out[2][0];
+        $conditionalDiscount2 = preg_replace("|</?.+?>|", "", $conditionalDiscount2);
+    }
+
     $discountPercentPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){1}(.+?)<p|i";
     preg_match_all($discountPercentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
 
@@ -687,6 +695,60 @@ foreach (glob("*.html") as $filename) {
                 }
             }
         }
+    }
+
+    if (empty($discountApplicableTo)){
+        $discountPercentPattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){2}(.+?)<p|i";
+        preg_match_all($discountPercentPattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out) > 2) && (isset($out[2][0]))) {
+            $discountApplicableTo = getDiscountApplicableTo($out[2][0]);
+        }
+    }
+
+    $conditionalDiscount2PercentagePattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){3}(.+?)<p|i";
+    preg_match_all($conditionalDiscount2PercentagePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+    if ((count($out) > 2) && (isset($out[2][0]))) {
+        $conditionalDiscount2Percentage = $out[2][0];
+        $conditionalDiscount2Percentage = preg_replace("|</?.+?>|", "", $conditionalDiscount2Percentage);
+
+        $conditionalDiscount2Percentage = preg_replace("/[^0-9,.%]/", "", $conditionalDiscount2Percentage);
+        $conditionalDiscount2Percentage = normalizeNumber($conditionalDiscount2Percentage);
+        $conditionalDiscount2PercentageArray = explode("%", $conditionalDiscount2Percentage);
+        if (isset($conditionalDiscount2PercentageArray[0]) && preg_match("|^\d+[,.]*\d*$|", $conditionalDiscount2PercentageArray[0])) {
+            $conditionalDiscount2Percentage = $conditionalDiscount2PercentageArray[0] . "%";
+            $conditionalDiscount2Applicableto = getDiscountApplicableTo($out[2][0]);
+        } else {
+            $conditionalDiscount2PercentagePattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){4}(.+?)<p|i";
+            preg_match_all($conditionalDiscount2PercentagePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+            if ((count($out) > 2) && (isset($out[2][0]))) {
+                $conditionalDiscount2Percentage = $out[2][0];
+                $conditionalDiscount2Percentage = preg_replace("|</?.+?>|", "", $conditionalDiscount2Percentage);
+
+                $conditionalDiscount2Percentage = preg_replace("/[^0-9,.%]/", "", $conditionalDiscount2Percentage);
+                $conditionalDiscount2Percentage = normalizeNumber($conditionalDiscount2Percentage);
+                $conditionalDiscount2PercentageArray = explode("%", $conditionalDiscount2Percentage);
+                if (isset($conditionalDiscount2PercentageArray[0]) && preg_match("|^\d+[,.]*\d*$|", $conditionalDiscount2PercentageArray[0])) {
+                    $conditionalDiscount2Percentage = $conditionalDiscount2PercentageArray[0] . "%";
+                    $conditionalDiscount2Applicableto = getDiscountApplicableTo($out[2][0]);
+                }
+            }
+        }
+    }
+
+    if (empty($conditionalDiscount2Applicableto)){
+        $conditionalDiscount2PercentagePattern = "|body.+?<b>Conditional discounts<\/b><\/p>(<p.+?>){4}(.+?)<p|i";
+        preg_match_all($conditionalDiscount2PercentagePattern, $htmlContent, $out, PREG_PATTERN_ORDER);
+
+        if ((count($out) > 2) && (isset($out[2][0]))) {
+            $conditionalDiscount2Applicableto = getDiscountApplicableTo($out[2][0]);
+        }
+    }
+
+    if (empty($conditionalDiscount2Percentage) && empty($conditionalDiscount2Applicableto)) {
+        $conditionalDiscount2 = "";
     }
 
     if (empty($guaranteedDiscounts)) {
